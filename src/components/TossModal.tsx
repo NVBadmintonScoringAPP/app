@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { Coins, CheckCircle, RotateCcw, ArrowLeftRight, Play, Globe } from 'lucide-react';
-import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -222,13 +222,17 @@ export function TossModal({
         : 'border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800'
     );
 
-  return (
-    <Dialog
-      open={open}
-      onClose={onCancel}
-      className="w-[94vw] sm:w-[90vw] md:w-[500px] max-w-[520px] border-zinc-800 bg-black/95 backdrop-blur-2xl !p-3 sm:!p-3.5 max-h-[96vh] overflow-y-auto overflow-x-hidden flex flex-col justify-start shadow-2xl"
-    >
-      <div className="w-full flex flex-col items-center space-y-2 select-none">
+  if (!open) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 bg-black flex flex-col overflow-hidden">
+      {/* Top tricolor stripe */}
+      <div className="h-[3px] w-full bg-tricolor-horizontal shrink-0" />
+
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="min-h-full flex items-center justify-center px-4 py-4">
+          <div className="w-full max-w-lg flex flex-col gap-3 select-none">
         {/* Top Header Row: Back button (Left), Status Badge (Center), Language Switcher (Right) */}
         <div className="w-full flex items-center justify-between z-20">
           <button
@@ -621,7 +625,13 @@ export function TossModal({
             </Button>
           </div>
         </div>
+          </div>
+        </div>
       </div>
-    </Dialog>
+
+      {/* Bottom tricolor stripe */}
+      <div className="h-[3px] w-full bg-tricolor-horizontal shrink-0" />
+    </div>,
+    document.body
   );
 }
