@@ -42,15 +42,11 @@ import type {
   TossResult,
   CustomFormatConfig,
 } from '@/types';
+import { generateUUID, toUUID } from '@/lib/uuid';
 
 const DEFAULT_PIN = '1234';
 const INTERVAL_DURATION = 60;
 const SET_BREAK_DURATION = 120;
-
-function generateId(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-  return `m_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
-}
 
 export default function App() {
   const { t } = useI18n();
@@ -211,7 +207,7 @@ export default function App() {
       currentPositions: PlayerPositions
     ) => {
       const now = new Date().toISOString();
-      const id = matchId || generateId();
+      const id = matchId ? toUUID(matchId) : generateUUID();
       const match: Match = {
         id,
         matchNumber,
@@ -243,7 +239,7 @@ export default function App() {
         currentServer: serverName,
         currentReceiver: receiverName,
       };
-      if (!matchId) setMatchId(id);
+      if (matchId !== id) setMatchId(id);
       await sync.saveMatch(match);
     },
     [
@@ -273,9 +269,10 @@ export default function App() {
       activeServer: string,
       activeReceiver: string
     ) => {
-      if (!matchId) return;
+      const safeId = matchId ? toUUID(matchId) : generateUUID();
+      if (!matchId || matchId !== safeId) setMatchId(safeId);
       await sync.logPoint({
-        matchId,
+        matchId: safeId,
         timestamp: new Date().toISOString(),
         setNumber: currentSet,
         scoreLeft: left,
@@ -603,7 +600,7 @@ export default function App() {
 
     setShowToss(false);
     handleResetMatch();
-    const chosenMatchId = pendingSetup.matchId || pendingSetup.matchNumber || generateId();
+    const chosenMatchId = pendingSetup.matchId ? toUUID(pendingSetup.matchId) : generateUUID();
     setMatchId(chosenMatchId);
   };
 
@@ -655,9 +652,10 @@ export default function App() {
     playerName: string;
     reason: string;
   }) => {
-    if (!matchId) return;
+    const safeId = matchId ? toUUID(matchId) : generateUUID();
+    if (!matchId || matchId !== safeId) setMatchId(safeId);
     await sync.logCard({
-      matchId,
+      matchId: safeId,
       timestamp: new Date().toISOString(),
       cardColor: card.cardColor,
       side: card.side,
@@ -668,9 +666,10 @@ export default function App() {
   };
 
   const handleDownloadScoresheet = async () => {
-    const pointLogs = matchId ? await getPointLogs(matchId) : [];
+    const safeId = matchId ? toUUID(matchId) : generateUUID();
+    const pointLogs = matchId ? await getPointLogs(safeId) : [];
     const currentMatch: Match = {
-      id: matchId || generateId(),
+      id: safeId,
       matchNumber,
       playerLeftName: playerLeft,
       playerRightName: playerRight,
