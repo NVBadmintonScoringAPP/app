@@ -12,6 +12,7 @@ import { AdminModal } from '@/components/AdminModal';
 import { SyncQueueModal } from '@/components/SyncQueueModal';
 import { KioskLockScreen } from '@/components/KioskLockScreen';
 import { WelcomeSplash } from '@/components/WelcomeSplash';
+import { ConfirmNewMatchModal } from '@/components/ConfirmNewMatchModal';
 import { getAudioService } from '@/lib/audio';
 import { getSyncService } from '@/lib/sync';
 import { getTournamentService } from '@/lib/tournamentService';
@@ -160,6 +161,7 @@ export default function App() {
   const [showCards, setShowCards] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showSyncQueue, setShowSyncQueue] = useState(false);
+  const [showConfirmNewMatch, setShowConfirmNewMatch] = useState(false);
 
   // Kiosk guard: once the user has passed the welcome screen the app cannot be left
   // without the admin PIN (fullscreen, back-button trap, PIN lock when app is backgrounded).
@@ -651,10 +653,12 @@ export default function App() {
   };
 
   const handleNewMatch = () => {
-    if (scoreLeft > 0 || scoreRight > 0 || setsLeft > 0 || setsRight > 0) {
-      setShowAdmin(true);
-      return;
-    }
+    setShowConfirmNewMatch(true);
+  };
+
+  const handleConfirmNewMatch = () => {
+    setShowConfirmNewMatch(false);
+    handleResetMatch();
     setShowWinner(false);
     setShowWelcome(true);
   };
@@ -887,6 +891,19 @@ export default function App() {
         duration={restDuration}
         title={restTitle}
         onDismiss={() => setShowRest(false)}
+      />
+
+      {/* 9. Confirm New Match Modal (Protection against accidental reset) */}
+      <ConfirmNewMatchModal
+        open={showConfirmNewMatch}
+        scoreLeft={scoreLeft}
+        scoreRight={scoreRight}
+        setsLeft={setsLeft}
+        setsRight={setsRight}
+        playerLeft={playerLeft}
+        playerRight={playerRight}
+        onConfirm={handleConfirmNewMatch}
+        onCancel={() => setShowConfirmNewMatch(false)}
       />
 
 

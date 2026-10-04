@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Maximize, Minimize, Globe } from 'lucide-react';
+import { useRef } from 'react';
+import { Volume2, VolumeX, Globe } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import type { MatchFormat } from '@/types';
 
@@ -29,7 +29,6 @@ export function Header({
   onAdminPress,
 }: HeaderProps) {
   const { lang, isTranslationEnabled, setLanguage, t } = useI18n();
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Triple-click / triple-tap detector on logo for Head Referee PIN entrance
   const clickCountRef = useRef(0);
@@ -48,25 +47,17 @@ export function Header({
     }
   };
 
-  useEffect(() => {
-    const handleFsChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFsChange);
-    return () => document.removeEventListener('fullscreenchange', handleFsChange);
-  }, []);
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    } else {
-      document.exitFullscreen().catch(() => {});
-    }
-  };
+  // Determine if matchNumber is a custom round/match title or just repeating "Корт X"
+  const isGenericCourtName =
+    !matchNumber ||
+    matchNumber.trim().toLowerCase() === `корт ${courtNumber}`.toLowerCase() ||
+    matchNumber.trim().toLowerCase() === `корт${courtNumber}`.toLowerCase() ||
+    matchNumber.trim().toLowerCase() === `court ${courtNumber}`.toLowerCase() ||
+    matchNumber.trim().toLowerCase() === `match ${courtNumber}`.toLowerCase();
 
   return (
     <header className="flex items-center justify-between nv-header-border bg-black px-3 sm:px-4 py-1.5 md:px-6 shadow-2xl select-none shrink-0">
-      {/* Left: Official NV Logo with 3-click handler + Court & Match Badge */}
+      {/* Left: Official NV Logo with 3-click handler + Court Badge */}
       <div className="flex items-center gap-2 sm:gap-3.5">
         <div
           onClick={handleLogoClick}
@@ -95,34 +86,37 @@ export function Header({
           <span className="h-1.5 w-3.5 rounded-full bg-[#e11e24] shadow-sm" />
         </div>
 
-        {/* Court Badge */}
+        {/* Court Badge (single place for court number, no duplicate "Корт 1" next to it) */}
         <div className="flex items-center gap-1.5 rounded-xl border border-[#6bc33a]/40 bg-[#6bc33a]/10 px-2.5 py-1">
           <div className="text-[10px] font-black uppercase tracking-widest text-[#6bc33a]">{t('courtUpper')}</div>
           <div className="text-base sm:text-lg font-black text-white">{courtNumber}</div>
         </div>
 
-        {/* Match Info */}
+        {/* Location & Format Info (only shows custom match title if not duplicating Court number) */}
         <div className="hidden lg:flex flex-col">
-          <span className="text-xs font-bold text-slate-100">{matchNumber}</span>
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider truncate max-w-[140px]">
+          {!isGenericCourtName && (
+            <span className="text-xs font-bold text-slate-100">{matchNumber}</span>
+          )}
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider truncate max-w-[160px]">
             {locationName || (format === '3x21' ? 'BWF 3×21' : 'BWF 3×15')}
           </span>
         </div>
       </div>
 
-      {/* Center: Current Set & Sets Score Tracker */}
+      {/* Center: Current Set & Sets Score Tracker (Unified, ZERO duplication of 'Гейм/Геймове') */}
       <div className="flex flex-col items-center">
-        <div className="flex items-center gap-2">
-          <span className="rounded-full bg-zinc-900 border border-zinc-700 px-3 py-0.5 text-xs font-black text-white">
-            {t('gameUpper')} {currentSet}
+        <span className="rounded-full bg-zinc-900 border border-zinc-700 px-3.5 py-1 text-xs font-black text-white flex items-center gap-2 shadow-sm">
+          <span>{t('gameUpper')} {currentSet}</span>
+          <span className="text-zinc-600 font-normal">|</span>
+          <span className="text-xs font-black flex items-center gap-1">
+            <strong className="text-[#6bc33a]">{setsLeft}</strong>
+            <span className="text-zinc-500">—</span>
+            <strong className="text-[#e11e24]">{setsRight}</strong>
           </span>
-          <span className="text-xs sm:text-sm font-black text-slate-200">
-            {t('games')}: <strong className="text-[#6bc33a]">{setsLeft}</strong> — <strong className="text-[#e11e24]">{setsRight}</strong>
-          </span>
-        </div>
+        </span>
       </div>
 
-      {/* Right: Sound, Fullscreen, and optional Language Switcher */}
+      {/* Right: Sound toggle and optional Language Switcher */}
       <div className="flex items-center gap-1 sm:gap-2">
         {/* Language Switcher (Visible if enabled by Admin) */}
         {isTranslationEnabled && (
@@ -147,16 +141,6 @@ export function Header({
           title={isMuted ? t('soundUnmute') : t('soundMute')}
         >
           {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
-        </button>
-
-        {/* Fullscreen button */}
-        <button
-          type="button"
-          onClick={toggleFullscreen}
-          className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-[#6bc33a] hover:border-[#6bc33a]/40 transition-colors cursor-pointer"
-          title={isFullscreen ? t('fullscreenExit') : t('fullscreenEnter')}
-        >
-          {isFullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
         </button>
       </div>
     </header>
