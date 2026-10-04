@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Play, Pause, FastForward, Bell, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, FastForward, Bell, Volume2, VolumeX, Timer } from 'lucide-react';
 import { getAudioService } from '@/lib/audio';
 import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -133,84 +133,75 @@ export function RestOverlay({ open, duration, title, onDismiss }: RestOverlayPro
 
   // Percentage for progress ring
   const progressPercent = Math.min(100, Math.max(0, ((duration - remaining) / duration) * 100));
-  const radius = 80;
+  const radius = 78;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
 
   return createPortal(
     <div className="fixed inset-0 z-50 bg-black flex flex-col overflow-hidden select-none animate-fade-in">
-      {/* Top tricolor stripe */}
+      {/* Top Bulgarian Tricolor Stripe */}
       <div className="h-[3px] w-full bg-tricolor-horizontal shrink-0" />
 
-      {/* Main scrollable/adaptable content - 100% solid black, nothing behind visible */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center p-3 sm:p-5">
-        <div className="relative w-full max-w-xl flex flex-col items-center rounded-3xl border border-zinc-800 bg-zinc-950 p-4 sm:p-6 md:p-8 shadow-2xl">
-          {/* Close / Dismiss Button */}
-          <button
-            onClick={onDismiss}
-            className="absolute right-3.5 top-3.5 rounded-xl p-2 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 transition-colors cursor-pointer"
-            title="Затвори"
-          >
-            <X size={22} />
-          </button>
-
-          {/* Logo */}
+      {/* Main Screen Content - Perfectly Centered, Full Screen, Pure Black Background */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center px-4 py-3 sm:py-6">
+        <div className="w-full max-w-md flex flex-col items-center text-center">
+          
+          {/* NV Badminton Official Logo */}
           <img
             src="/logo.png"
             alt="Национална Верига Бадминтон"
-            className="max-h-[40px] sm:max-h-[50px] object-contain drop-shadow mb-1"
+            className="max-h-[46px] sm:max-h-[60px] object-contain drop-shadow mb-1"
           />
 
           {/* Bulgarian Tricolor Indicator */}
           <div className="flex items-center justify-center gap-1.5 my-1">
-            <span className="h-1.5 w-6 rounded-full bg-white shadow-sm ring-1 ring-white/30" />
-            <span className="h-1.5 w-6 rounded-full bg-[#6bc33a] shadow-sm ring-1 ring-emerald-400/30" />
-            <span className="h-1.5 w-6 rounded-full bg-[#e11e24] shadow-sm ring-1 ring-red-500/30" />
+            <span className="h-1.5 w-7 rounded-full bg-white shadow-sm ring-1 ring-white/30" />
+            <span className="h-1.5 w-7 rounded-full bg-[#6bc33a] shadow-sm ring-1 ring-emerald-400/30" />
+            <span className="h-1.5 w-7 rounded-full bg-[#e11e24] shadow-sm ring-1 ring-red-500/30" />
           </div>
 
-          {/* Title & Badge */}
-          <div className="flex items-center gap-2 mt-1 mb-1">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-amber-400 animate-ping" />
-            <span className="text-[11px] font-black uppercase tracking-widest text-amber-400">
+          {/* Official BWF Interval Badge */}
+          <div className="flex items-center gap-1.5 rounded-full bg-[#6bc33a]/15 border border-[#6bc33a]/30 px-3 py-1 my-1.5 shadow-sm">
+            <Timer size={13} className="text-[#6bc33a]" />
+            <span className="text-[11px] font-black uppercase tracking-wider text-[#6bc33a]">
               Официална BWF почивка
             </span>
           </div>
 
-          <h2 className="mb-2 text-center text-lg sm:text-2xl font-black text-white px-6">
+          {/* Title */}
+          <h2 className="text-xl sm:text-2xl font-black text-white mt-1 mb-2">
             {title}
           </h2>
 
-          {/* Circular Countdown Progress */}
+          {/* Circular Countdown Progress with Branded Colors */}
           <div className="relative flex items-center justify-center my-2">
-            <svg className="h-44 w-44 sm:h-52 sm:w-52 -rotate-90 transform" viewBox="0 0 200 200">
+            <svg className="h-44 w-44 sm:h-52 sm:w-52 -rotate-90 transform" viewBox="0 0 190 190">
               {/* Background circle */}
               <circle
-                cx="100"
-                cy="100"
+                cx="95"
+                cy="95"
                 r={radius}
                 stroke="currentColor"
-                strokeWidth="8"
+                strokeWidth="7"
                 fill="transparent"
-                className="text-zinc-800"
+                className="text-zinc-850"
               />
-              {/* Animated progress circle */}
+              {/* Animated progress circle - NV Green (#6bc33a) normally, Red (#e11e24) on warning */}
               <circle
-                cx="100"
-                cy="100"
+                cx="95"
+                cy="95"
                 r={radius}
                 stroke="currentColor"
-                strokeWidth="8"
+                strokeWidth="7"
                 fill="transparent"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
                 strokeLinecap="round"
                 className={cn(
                   'transition-all duration-1000 ease-linear',
-                  isFinished
-                    ? 'text-[#6bc33a]'
-                    : isWarning
+                  isWarning
                     ? 'text-[#e11e24] animate-pulse'
-                    : 'text-amber-400'
+                    : 'text-[#6bc33a]'
                 )}
               />
             </svg>
@@ -219,17 +210,15 @@ export function RestOverlay({ open, duration, title, onDismiss }: RestOverlayPro
             <div className="absolute flex flex-col items-center text-center">
               <span
                 className={cn(
-                  'tabular font-black text-4xl sm:text-5xl md:text-6xl tracking-tight transition-colors',
-                  isFinished
-                    ? 'text-[#6bc33a]'
-                    : isWarning
+                  'tabular font-black text-5xl sm:text-6xl tracking-tight transition-colors',
+                  isWarning
                     ? 'text-[#e11e24] animate-pulse'
-                    : 'text-white'
+                    : 'text-white drop-shadow-[0_4px_16px_rgba(107,195,58,0.25)]'
                 )}
               >
                 {display}
               </span>
-              <span className="mt-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400">
+              <span className="mt-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400">
                 {isFinished ? 'Времето изтече!' : isPaused ? 'Паузирано' : 'Оставащо време'}
               </span>
             </div>
@@ -237,25 +226,25 @@ export function RestOverlay({ open, duration, title, onDismiss }: RestOverlayPro
 
           {/* Warning Badge (10s before end) */}
           {isWarning && (
-            <div className="flex items-center gap-1.5 rounded-full bg-red-500/20 border border-red-500/40 px-3 py-1 text-xs font-bold text-red-300 animate-bounce mb-2">
+            <div className="flex items-center gap-1.5 rounded-full bg-[#e11e24]/20 border border-[#e11e24]/40 px-3 py-1 text-xs font-black text-[#e11e24] animate-bounce my-1.5">
               <Bell size={14} className="animate-spin" />
               <span>{lang === 'bg' ? '10 секунди до подновяване на срещата!' : '10 seconds remaining to resume!'}</span>
             </div>
           )}
 
           {isFinished && (
-            <div className="rounded-full bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 text-xs font-bold text-emerald-300 mb-2">
+            <div className="rounded-full bg-[#6bc33a]/20 border border-[#6bc33a]/40 px-3 py-1 text-xs font-black text-[#6bc33a] my-1.5">
               {lang === 'bg' ? 'Почивката приключи — готовност за сервиране!' : 'Interval finished — ready to serve!'}
             </div>
           )}
 
           {/* Timer Control Buttons */}
-          <div className="flex items-center gap-2 mt-1 mb-3">
+          <div className="flex items-center justify-center gap-2 my-2 w-full max-w-xs">
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleAdjustTime(-10)}
-              className="border-zinc-800 bg-zinc-900 text-xs font-bold text-zinc-200 hover:bg-zinc-800 cursor-pointer"
+              className="flex-1 h-9 border-zinc-800 bg-zinc-900 text-xs font-black text-zinc-200 hover:bg-zinc-800 hover:text-white cursor-pointer"
             >
               -10 {t('secondsShort')}
             </Button>
@@ -264,9 +253,9 @@ export function RestOverlay({ open, duration, title, onDismiss }: RestOverlayPro
               variant="outline"
               size="sm"
               onClick={togglePause}
-              className="border-zinc-800 bg-zinc-900 px-3.5 text-xs font-bold text-zinc-200 hover:bg-zinc-800 cursor-pointer"
+              className="flex-1 h-9 border-zinc-800 bg-zinc-900 text-xs font-black text-zinc-200 hover:bg-zinc-800 hover:text-white cursor-pointer"
             >
-              {isPaused ? <Play size={14} className="mr-1 text-[#6bc33a]" /> : <Pause size={14} className="mr-1 text-amber-400" />}
+              {isPaused ? <Play size={13} className="mr-1 text-[#6bc33a]" /> : <Pause size={13} className="mr-1 text-[#6bc33a]" />}
               {isPaused ? t('start') : (lang === 'bg' ? 'Пауза' : 'Pause')}
             </Button>
 
@@ -274,7 +263,7 @@ export function RestOverlay({ open, duration, title, onDismiss }: RestOverlayPro
               variant="outline"
               size="sm"
               onClick={() => handleAdjustTime(10)}
-              className="border-zinc-800 bg-zinc-900 text-xs font-bold text-zinc-200 hover:bg-zinc-800 cursor-pointer"
+              className="flex-1 h-9 border-zinc-800 bg-zinc-900 text-xs font-black text-zinc-200 hover:bg-zinc-800 hover:text-white cursor-pointer"
             >
               +10 {t('secondsShort')}
             </Button>
@@ -282,28 +271,31 @@ export function RestOverlay({ open, duration, title, onDismiss }: RestOverlayPro
             <button
               type="button"
               onClick={toggleMute}
-              className="rounded-lg border border-zinc-800 bg-zinc-900 p-2 text-zinc-400 hover:text-zinc-200 cursor-pointer"
+              className="h-9 w-9 rounded-lg border border-zinc-800 bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer shrink-0 transition-colors"
               title={isMuted ? t('soundUnmute') : t('soundMute')}
             >
-              {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
             </button>
           </div>
 
-          {/* Skip Interval Action */}
-          <Button
-            type="button"
-            variant="default"
-            size="lg"
-            onClick={onDismiss}
-            className="w-full h-12 bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-black font-black text-sm rounded-xl shadow-lg transition-all cursor-pointer"
-          >
-            <FastForward size={18} className="mr-2" />
-            <span>{lang === 'bg' ? 'Подновяване на играта (Skip Interval)' : 'Resume Match Now (Skip Interval)'}</span>
-          </Button>
+          {/* Skip Interval Action - Official NV Lime Green Branded Button */}
+          <div className="w-full mt-3">
+            <Button
+              type="button"
+              variant="default"
+              size="lg"
+              onClick={onDismiss}
+              className="w-full h-12 bg-[#6bc33a] hover:bg-[#56be32] active:bg-[#439527] text-black font-black text-sm rounded-xl shadow-lg shadow-[#6bc33a]/25 transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <FastForward size={18} />
+              <span>{lang === 'bg' ? 'Подновяване на играта (Skip Interval)' : 'Resume Match Now (Skip Interval)'}</span>
+            </Button>
+          </div>
+
         </div>
       </div>
 
-      {/* Bottom tricolor stripe */}
+      {/* Bottom Bulgarian Tricolor Stripe */}
       <div className="h-[3px] w-full bg-tricolor-horizontal shrink-0" />
     </div>,
     document.body
