@@ -1,0 +1,26 @@
+{
+  "name": "Badminton Digital Scoreboard (Kiosk)",
+  "short_name": "BWF Umpire",
+  "description": "Професионално BWF съдийско табло с Tournament Software синхронизация, офлайн режим и PDF протоколи",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "utilities"]
+}
