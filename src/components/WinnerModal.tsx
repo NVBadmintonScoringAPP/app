@@ -178,7 +178,7 @@ export function WinnerModal({
                     {team1FullName}
                   </div>
                   {playerLeftClub && (
-                    <div className="text-[10px] font-bold text-amber-400 truncate max-w-full mt-0.5">
+                    <div className="text-[10px] font-medium text-zinc-300 truncate max-w-full mt-0.5">
                       🏛️ {playerLeftClub}
                     </div>
                   )}
@@ -216,7 +216,7 @@ export function WinnerModal({
                     {team2FullName}
                   </div>
                   {playerRightClub && (
-                    <div className="text-[10px] font-bold text-amber-400 truncate max-w-full mt-0.5">
+                    <div className="text-[10px] font-medium text-zinc-300 truncate max-w-full mt-0.5">
                       🏛️ {playerRightClub}
                     </div>
                   )}
@@ -367,7 +367,7 @@ export function WinnerModal({
                   </div>
                 </div>
               </div>
-              <span className="text-[11px] font-black uppercase bg-zinc-800 text-amber-300 border border-zinc-700 px-2.5 py-1 rounded-lg">
+              <span className="text-[11px] font-black uppercase bg-[#6bc33a]/10 text-[#6bc33a] border border-[#6bc33a]/40 px-2.5 py-1 rounded-lg">
                 {t('courtNum', { court: courtNumber })}
               </span>
             </div>
@@ -387,7 +387,7 @@ export function WinnerModal({
                     {team1FullName}
                   </div>
                   {playerLeftClub && (
-                    <div className="text-[11px] font-black uppercase text-amber-400 truncate">
+                    <div className="text-[11px] font-medium uppercase text-zinc-300 truncate">
                       🏛️ {playerLeftClub}
                     </div>
                   )}
@@ -415,7 +415,7 @@ export function WinnerModal({
                     {team2FullName}
                   </div>
                   {playerRightClub && (
-                    <div className="text-[11px] font-black uppercase text-amber-400 truncate">
+                    <div className="text-[11px] font-medium uppercase text-zinc-300 truncate">
                       🏛️ {playerRightClub}
                     </div>
                   )}

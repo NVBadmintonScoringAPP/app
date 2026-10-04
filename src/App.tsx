@@ -954,6 +954,7 @@ export default function App() {
         open={showRest}
         duration={restDuration}
         title={restTitle}
+        courtNumber={courtNumber}
         onDismiss={() => setShowRest(false)}
       />
 

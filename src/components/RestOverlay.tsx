@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Play, Pause, FastForward, Bell, Volume2, VolumeX, Timer } from 'lucide-react';
+import { Play, Pause, FastForward, Bell, Volume2, VolumeX, Timer, X } from 'lucide-react';
 import { getAudioService } from '@/lib/audio';
 import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -10,10 +10,11 @@ interface RestOverlayProps {
   open: boolean;
   duration: number;
   title: string;
+  courtNumber?: string;
   onDismiss: () => void;
 }
 
-export function RestOverlay({ open, duration, title, onDismiss }: RestOverlayProps) {
+export function RestOverlay({ open, duration, title, courtNumber, onDismiss }: RestOverlayProps) {
   const { lang, t } = useI18n();
   const [remaining, setRemaining] = useState(duration);
   const [isPaused, setIsPaused] = useState(false);
@@ -144,142 +145,171 @@ export function RestOverlay({ open, duration, title, onDismiss }: RestOverlayPro
 
       {/* Main Screen Content - Perfectly Centered, Full Screen, Pure Black Background */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center px-4 py-3 sm:py-6">
-        <div className="w-full max-w-md flex flex-col items-center text-center">
+        <div className="w-full max-w-lg flex flex-col items-center text-center space-y-3">
           
-          {/* NV Badminton Official Logo */}
-          <img
-            src="/logo.png"
-            alt="Национална Верига Бадминтон"
-            className="max-h-[46px] sm:max-h-[60px] object-contain drop-shadow mb-1"
-          />
+          {/* Header Banner: Logo, Title & Court Badge */}
+          <div className="w-full flex items-center justify-between border-b border-zinc-800 pb-2">
+            <div className="flex items-center gap-2">
+              <img
+                src="/logo.png"
+                alt="Национална Верига Бадминтон"
+                className="max-h-[38px] sm:max-h-[46px] object-contain drop-shadow"
+              />
+              <div className="text-left hidden xs:block">
+                <div className="text-[9px] font-black uppercase tracking-wider text-zinc-400">
+                  {t('appTitle')}
+                </div>
+                <div className="text-xs font-black text-[#6bc33a]">
+                  {lang === 'bg' ? 'Официална BWF почивка' : 'Official BWF Interval'}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {courtNumber && (
+                <div className="flex items-center gap-1.5 rounded-xl border border-[#6bc33a]/40 bg-[#6bc33a]/10 px-2.5 py-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#6bc33a]">{t('courtUpper')}</span>
+                  <span className="text-sm sm:text-base font-black text-white">{courtNumber}</span>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={onDismiss}
+                className="h-8 w-8 rounded-lg border border-zinc-800 bg-zinc-900/80 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer"
+                title={lang === 'bg' ? 'Затвори' : 'Close'}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
 
           {/* Bulgarian Tricolor Indicator */}
-          <div className="flex items-center justify-center gap-1.5 my-1">
+          <div className="flex items-center justify-center gap-1.5 -my-0.5">
             <span className="h-1.5 w-7 rounded-full bg-white shadow-sm ring-1 ring-white/30" />
             <span className="h-1.5 w-7 rounded-full bg-[#6bc33a] shadow-sm ring-1 ring-emerald-400/30" />
             <span className="h-1.5 w-7 rounded-full bg-[#e11e24] shadow-sm ring-1 ring-red-500/30" />
           </div>
 
-          {/* Official BWF Interval Badge */}
-          <div className="flex items-center gap-1.5 rounded-full bg-[#6bc33a]/15 border border-[#6bc33a]/30 px-3 py-1 my-1.5 shadow-sm">
+          {/* Interval Title Banner */}
+          <div className="flex items-center gap-2 rounded-full bg-[#6bc33a]/15 border border-[#6bc33a]/30 px-3.5 py-1 shadow-sm">
             <Timer size={13} className="text-[#6bc33a]" />
-            <span className="text-[11px] font-black uppercase tracking-wider text-[#6bc33a]">
-              Официална BWF почивка
+            <span className="text-xs font-black uppercase tracking-wider text-[#6bc33a]">
+              {title}
             </span>
           </div>
 
-          {/* Title */}
-          <h2 className="text-xl sm:text-2xl font-black text-white mt-1 mb-2">
-            {title}
-          </h2>
+          {/* Circular Countdown Progress Card */}
+          <div className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:p-5 shadow-2xl relative overflow-hidden flex flex-col items-center">
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#6bc33a] to-transparent" />
 
-          {/* Circular Countdown Progress with Branded Colors */}
-          <div className="relative flex items-center justify-center my-2">
-            <svg className="h-44 w-44 sm:h-52 sm:w-52 -rotate-90 transform" viewBox="0 0 190 190">
-              {/* Background circle */}
-              <circle
-                cx="95"
-                cy="95"
-                r={radius}
-                stroke="currentColor"
-                strokeWidth="7"
-                fill="transparent"
-                className="text-zinc-850"
-              />
-              {/* Animated progress circle - NV Green (#6bc33a) normally, Red (#e11e24) on warning */}
-              <circle
-                cx="95"
-                cy="95"
-                r={radius}
-                stroke="currentColor"
-                strokeWidth="7"
-                fill="transparent"
-                strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
-                strokeLinecap="round"
-                className={cn(
-                  'transition-all duration-1000 ease-linear',
-                  isWarning
-                    ? 'text-[#e11e24] animate-pulse'
-                    : 'text-[#6bc33a]'
-                )}
-              />
-            </svg>
+            {/* Circular Countdown Progress with Branded Colors */}
+            <div className="relative flex items-center justify-center my-2">
+              <svg className="h-44 w-44 sm:h-52 sm:w-52 -rotate-90 transform" viewBox="0 0 190 190">
+                {/* Background circle */}
+                <circle
+                  cx="95"
+                  cy="95"
+                  r={radius}
+                  stroke="currentColor"
+                  strokeWidth="7"
+                  fill="transparent"
+                  className="text-zinc-850"
+                />
+                {/* Animated progress circle - NV Green (#6bc33a) normally, Red (#e11e24) on warning */}
+                <circle
+                  cx="95"
+                  cy="95"
+                  r={radius}
+                  stroke="currentColor"
+                  strokeWidth="7"
+                  fill="transparent"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeDashoffset}
+                  strokeLinecap="round"
+                  className={cn(
+                    'transition-all duration-1000 ease-linear',
+                    isWarning
+                      ? 'text-[#e11e24] animate-pulse'
+                      : 'text-[#6bc33a]'
+                  )}
+                />
+              </svg>
 
-            {/* Time Display Centered */}
-            <div className="absolute flex flex-col items-center text-center">
-              <span
-                className={cn(
-                  'tabular font-black text-5xl sm:text-6xl tracking-tight transition-colors',
-                  isWarning
-                    ? 'text-[#e11e24] animate-pulse'
-                    : 'text-white drop-shadow-[0_4px_16px_rgba(107,195,58,0.25)]'
-                )}
+              {/* Time Display Centered */}
+              <div className="absolute flex flex-col items-center text-center">
+                <span
+                  className={cn(
+                    'tabular font-black text-5xl sm:text-6xl tracking-tight transition-colors',
+                    isWarning
+                      ? 'text-[#e11e24] animate-pulse'
+                      : 'text-white drop-shadow-[0_4px_16px_rgba(107,195,58,0.25)]'
+                  )}
+                >
+                  {display}
+                </span>
+                <span className="mt-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400">
+                  {isFinished ? 'Времето изтече!' : isPaused ? 'Паузирано' : 'Оставащо време'}
+                </span>
+              </div>
+            </div>
+
+            {/* Warning Badge (10s before end) */}
+            {isWarning && (
+              <div className="flex items-center gap-1.5 rounded-full bg-[#e11e24]/20 border border-[#e11e24]/40 px-3 py-1 text-xs font-black text-[#e11e24] animate-bounce my-1.5">
+                <Bell size={14} className="animate-spin" />
+                <span>{lang === 'bg' ? '10 секунди до подновяване на срещата!' : '10 seconds remaining to resume!'}</span>
+              </div>
+            )}
+
+            {isFinished && (
+              <div className="rounded-full bg-[#6bc33a]/20 border border-[#6bc33a]/40 px-3 py-1 text-xs font-black text-[#6bc33a] my-1.5">
+                {lang === 'bg' ? 'Почивката приключи — готовност за сервиране!' : 'Interval finished — ready to serve!'}
+              </div>
+            )}
+
+            {/* Timer Control Buttons */}
+            <div className="flex items-center justify-center gap-2 mt-2 w-full max-w-xs">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleAdjustTime(-10)}
+                className="flex-1 h-9 border-zinc-800 bg-zinc-900 text-xs font-black text-zinc-200 hover:bg-zinc-800 hover:text-white cursor-pointer"
               >
-                {display}
-              </span>
-              <span className="mt-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400">
-                {isFinished ? 'Времето изтече!' : isPaused ? 'Паузирано' : 'Оставащо време'}
-              </span>
+                -10 {t('secondsShort')}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={togglePause}
+                className="flex-1 h-9 border-zinc-800 bg-zinc-900 text-xs font-black text-zinc-200 hover:bg-zinc-800 hover:text-white cursor-pointer"
+              >
+                {isPaused ? <Play size={13} className="mr-1 text-[#6bc33a]" /> : <Pause size={13} className="mr-1 text-[#6bc33a]" />}
+                {isPaused ? t('start') : (lang === 'bg' ? 'Пауза' : 'Pause')}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleAdjustTime(10)}
+                className="flex-1 h-9 border-zinc-800 bg-zinc-900 text-xs font-black text-zinc-200 hover:bg-zinc-800 hover:text-white cursor-pointer"
+              >
+                +10 {t('secondsShort')}
+              </Button>
+
+              <button
+                type="button"
+                onClick={toggleMute}
+                className="h-9 w-9 rounded-lg border border-zinc-800 bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer shrink-0 transition-colors"
+                title={isMuted ? t('soundUnmute') : t('soundMute')}
+              >
+                {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+              </button>
             </div>
-          </div>
-
-          {/* Warning Badge (10s before end) */}
-          {isWarning && (
-            <div className="flex items-center gap-1.5 rounded-full bg-[#e11e24]/20 border border-[#e11e24]/40 px-3 py-1 text-xs font-black text-[#e11e24] animate-bounce my-1.5">
-              <Bell size={14} className="animate-spin" />
-              <span>{lang === 'bg' ? '10 секунди до подновяване на срещата!' : '10 seconds remaining to resume!'}</span>
-            </div>
-          )}
-
-          {isFinished && (
-            <div className="rounded-full bg-[#6bc33a]/20 border border-[#6bc33a]/40 px-3 py-1 text-xs font-black text-[#6bc33a] my-1.5">
-              {lang === 'bg' ? 'Почивката приключи — готовност за сервиране!' : 'Interval finished — ready to serve!'}
-            </div>
-          )}
-
-          {/* Timer Control Buttons */}
-          <div className="flex items-center justify-center gap-2 my-2 w-full max-w-xs">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleAdjustTime(-10)}
-              className="flex-1 h-9 border-zinc-800 bg-zinc-900 text-xs font-black text-zinc-200 hover:bg-zinc-800 hover:text-white cursor-pointer"
-            >
-              -10 {t('secondsShort')}
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={togglePause}
-              className="flex-1 h-9 border-zinc-800 bg-zinc-900 text-xs font-black text-zinc-200 hover:bg-zinc-800 hover:text-white cursor-pointer"
-            >
-              {isPaused ? <Play size={13} className="mr-1 text-[#6bc33a]" /> : <Pause size={13} className="mr-1 text-[#6bc33a]" />}
-              {isPaused ? t('start') : (lang === 'bg' ? 'Пауза' : 'Pause')}
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleAdjustTime(10)}
-              className="flex-1 h-9 border-zinc-800 bg-zinc-900 text-xs font-black text-zinc-200 hover:bg-zinc-800 hover:text-white cursor-pointer"
-            >
-              +10 {t('secondsShort')}
-            </Button>
-
-            <button
-              type="button"
-              onClick={toggleMute}
-              className="h-9 w-9 rounded-lg border border-zinc-800 bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer shrink-0 transition-colors"
-              title={isMuted ? t('soundUnmute') : t('soundMute')}
-            >
-              {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
-            </button>
           </div>
 
           {/* Skip Interval Action - Official NV Lime Green Branded Button */}
-          <div className="w-full mt-3">
+          <div className="w-full pt-1">
             <Button
               type="button"
               variant="default"

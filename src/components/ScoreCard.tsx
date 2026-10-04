@@ -90,7 +90,7 @@ export function ScoreCard({
             {teamLabel || (side === 'left' ? t('leftSide') : t('rightSide'))}
           </span>
           {clubName && (
-            <span className="text-[10px] sm:text-[11px] font-black uppercase px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-700 text-amber-300 shadow-sm truncate max-w-[150px] sm:max-w-none">
+            <span className="text-[10px] sm:text-[11px] font-black uppercase px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-700 text-zinc-200 shadow-sm truncate max-w-[150px] sm:max-w-none">
               🏛️ {clubName}
             </span>
           )}
