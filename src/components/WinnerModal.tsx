@@ -4,6 +4,7 @@ import { Trophy, FileDown, CheckCircle2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useI18n } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 interface WinnerModalProps {
   open: boolean;
@@ -101,70 +102,177 @@ export function WinnerModal({
 
   // CASE 1: End of a single GAME (not end of full match)
   if (!isMatchOver) {
+    const isLeftWinner = scoreLeft > scoreRight;
+    const currentSetNum = setScores.length + 1;
+
     return createPortal(
       <div className="fixed inset-0 z-50 bg-black flex flex-col overflow-hidden select-none animate-fade-in">
-        {/* Top tricolor stripe */}
+        {/* Top Bulgarian Tricolor Stripe */}
         <div className="h-[3px] w-full bg-tricolor-horizontal shrink-0" />
 
         {/* Scrollable centered content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center px-4 py-6">
-          <div className="w-full max-w-md flex flex-col items-center text-center">
-            {/* Logo */}
-            <img
-              src="/logo.png"
-              alt="Национална Верига Бадминтон"
-              className="max-h-[50px] sm:max-h-[65px] object-contain drop-shadow mb-2"
-            />
+        <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center px-4 py-4 sm:py-6">
+          <div className="w-full max-w-lg flex flex-col items-center text-center space-y-3.5">
+            
+            {/* Header: Logo, Tricolor & Court Badge */}
+            <div className="w-full flex items-center justify-between border-b border-zinc-800 pb-2">
+              <div className="flex items-center gap-2">
+                <img
+                  src="/logo.png"
+                  alt="Национална Верига Бадминтон"
+                  className="max-h-[38px] sm:max-h-[46px] object-contain drop-shadow"
+                />
+                <div className="text-left hidden xs:block">
+                  <div className="text-[9px] font-black uppercase tracking-wider text-zinc-400">
+                    {t('appTitle')}
+                  </div>
+                  <div className="text-xs font-black text-[#6bc33a]">
+                    {lang === 'bg' ? 'Официално съдийско табло' : 'Official Umpire Scoreboard'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Court Badge */}
+              <div className="flex items-center gap-1.5 rounded-xl border border-[#6bc33a]/40 bg-[#6bc33a]/10 px-2.5 py-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#6bc33a]">{t('courtUpper')}</span>
+                <span className="text-sm sm:text-base font-black text-white">{courtNumber}</span>
+              </div>
+            </div>
 
             {/* Bulgarian Tricolor Indicator */}
-            <div className="flex items-center justify-center gap-1.5 my-1.5">
+            <div className="flex items-center justify-center gap-1.5 -my-1">
               <span className="h-1.5 w-7 rounded-full bg-white shadow-sm ring-1 ring-white/30" />
               <span className="h-1.5 w-7 rounded-full bg-[#6bc33a] shadow-sm ring-1 ring-emerald-400/30" />
               <span className="h-1.5 w-7 rounded-full bg-[#e11e24] shadow-sm ring-1 ring-red-500/30" />
             </div>
 
-            {/* Trophy Icon */}
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#6bc33a]/15 text-[#6bc33a] border border-[#6bc33a]/30 my-3 shadow-lg shadow-[#6bc33a]/10">
-              <Trophy size={36} className="text-amber-400" />
-            </div>
-
-            <h2 className="text-xl sm:text-2xl font-black text-white">
-              {t('gameFinishedTitle', { set: setScores.length + 1 })}
-            </h2>
-            <p className="mt-1 text-base sm:text-lg font-extrabold text-[#6bc33a]">
-              {winnerName}
-            </p>
-
-            {/* Set scores pills */}
-            <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
-              {setScores.map((s, idx) => (
-                <span
-                  key={idx}
-                  className="rounded-xl bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-xs font-bold text-zinc-300"
-                >
-                  {t('game')} {idx + 1}: {s.left}-{s.right}
-                </span>
-              ))}
-              <span className="rounded-xl bg-[#6bc33a]/15 border border-[#6bc33a]/40 px-3 py-1.5 text-xs font-black text-[#6bc33a]">
-                {scoreLeft} - {scoreRight}
+            {/* Set Status Banner */}
+            <div className="flex items-center gap-2 rounded-full bg-[#6bc33a]/15 border border-[#6bc33a]/30 px-3.5 py-1 shadow-sm">
+              <span className="flex h-2 w-2 rounded-full bg-[#6bc33a] animate-ping" />
+              <span className="text-xs font-black uppercase tracking-widest text-[#6bc33a]">
+                {t('gameFinishedTitle', { set: currentSetNum })}
               </span>
             </div>
 
-            {/* Next Game Button */}
-            <div className="w-full mt-6">
+            {/* Winner Announcement Card with Scoreboard Breakdown */}
+            <div className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:p-5 shadow-2xl relative overflow-hidden flex flex-col items-center">
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#6bc33a] to-transparent" />
+
+              <div className="text-[11px] font-black uppercase tracking-wider text-zinc-400 mb-1">
+                {lang === 'bg' ? 'Победител в гейма' : 'Game Winner'}
+              </div>
+              
+              <div className="text-xl sm:text-2xl font-black text-white drop-shadow flex items-center justify-center gap-2">
+                <span>🏸</span>
+                <span className="text-[#6bc33a]">{winnerName}</span>
+              </div>
+
+              {/* Match Scoreboard Comparison for this set */}
+              <div className="w-full mt-4 pt-3.5 border-t border-zinc-850 grid grid-cols-5 items-center gap-2">
+                {/* Left Team */}
+                <div className={cn(
+                  "col-span-2 rounded-xl p-2.5 flex flex-col items-center transition-all",
+                  isLeftWinner ? "bg-[#6bc33a]/10 border border-[#6bc33a]/40" : "bg-zinc-900/60 border border-zinc-800/80"
+                )}>
+                  <div className="text-xs font-black text-white truncate max-w-full">
+                    {team1FullName}
+                  </div>
+                  {playerLeftClub && (
+                    <div className="text-[10px] font-bold text-amber-400 truncate max-w-full mt-0.5">
+                      🏛️ {playerLeftClub}
+                    </div>
+                  )}
+                  <div className={cn(
+                    "tabular font-black text-2xl sm:text-3xl mt-1.5",
+                    isLeftWinner ? "text-[#6bc33a] drop-shadow-[0_2px_10px_rgba(107,195,58,0.3)]" : "text-zinc-400"
+                  )}>
+                    {scoreLeft}
+                  </div>
+                  {isLeftWinner && (
+                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-[#6bc33a] text-black mt-1">
+                      {lang === 'bg' ? 'Победител' : 'Winner'}
+                    </span>
+                  )}
+                </div>
+
+                {/* Center Divider: Set Score */}
+                <div className="col-span-1 flex flex-col items-center justify-center">
+                  <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                    {lang === 'bg' ? 'ГЕЙМОВЕ' : 'GAMES'}
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-white bg-black px-2.5 py-1 rounded-xl border border-zinc-800 my-1 shadow-inner">
+                    <span className="text-[#6bc33a]">{setsLeft}</span>
+                    <span className="text-zinc-600 mx-1">:</span>
+                    <span className="text-[#e11e24]">{setsRight}</span>
+                  </div>
+                </div>
+
+                {/* Right Team */}
+                <div className={cn(
+                  "col-span-2 rounded-xl p-2.5 flex flex-col items-center transition-all",
+                  !isLeftWinner ? "bg-[#6bc33a]/10 border border-[#6bc33a]/40" : "bg-zinc-900/60 border border-zinc-800/80"
+                )}>
+                  <div className="text-xs font-black text-white truncate max-w-full">
+                    {team2FullName}
+                  </div>
+                  {playerRightClub && (
+                    <div className="text-[10px] font-bold text-amber-400 truncate max-w-full mt-0.5">
+                      🏛️ {playerRightClub}
+                    </div>
+                  )}
+                  <div className={cn(
+                    "tabular font-black text-2xl sm:text-3xl mt-1.5",
+                    !isLeftWinner ? "text-[#6bc33a] drop-shadow-[0_2px_10px_rgba(107,195,58,0.3)]" : "text-zinc-400"
+                  )}>
+                    {scoreRight}
+                  </div>
+                  {!isLeftWinner && (
+                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-[#6bc33a] text-black mt-1">
+                      {lang === 'bg' ? 'Победител' : 'Winner'}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Set scores pills history */}
+              {setScores.length > 0 && (
+                <div className="mt-3.5 pt-2.5 border-t border-zinc-850 flex items-center justify-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-bold text-zinc-500 uppercase">{t('points')}:</span>
+                  {setScores.map((s, idx) => (
+                    <span
+                      key={idx}
+                      className="rounded-lg bg-black border border-zinc-800 px-2 py-0.5 text-[11px] font-black text-zinc-300"
+                    >
+                      {t('game')} {idx + 1}: {s.left}-{s.right}
+                    </span>
+                  ))}
+                  <span className="rounded-lg bg-[#6bc33a]/15 border border-[#6bc33a]/40 px-2 py-0.5 text-[11px] font-black text-[#6bc33a]">
+                    {t('game')} {currentSetNum}: {scoreLeft}-{scoreRight}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Next Game Button & BWF Interval Hint */}
+            <div className="w-full pt-1">
               <Button
                 variant="default"
                 size="lg"
-                className="w-full h-12 bg-[#6bc33a] hover:bg-[#56be32] active:bg-[#439527] text-black font-black text-sm rounded-xl shadow-lg shadow-[#6bc33a]/25 transition-all cursor-pointer"
+                className="w-full h-12 bg-[#6bc33a] hover:bg-[#56be32] active:bg-[#439527] text-black font-black text-sm rounded-xl shadow-xl shadow-[#6bc33a]/25 transition-all cursor-pointer flex items-center justify-center gap-2"
                 onClick={onNextSet}
               >
-                {t('nextGameBtn')} →
+                <span>{t('nextGameBtn')}</span>
+                <span>→</span>
               </Button>
+              <p className="text-[10px] sm:text-[11px] font-medium text-zinc-400 mt-2">
+                ⏱️ {lang === 'bg' ? 'Следва 120 сек. официална BWF почивка и размяна на полетата' : 'Followed by 120s official BWF break and side change'}
+              </p>
             </div>
+
           </div>
         </div>
 
-        {/* Bottom tricolor stripe */}
+        {/* Bottom Bulgarian Tricolor Stripe */}
         <div className="h-[3px] w-full bg-tricolor-horizontal shrink-0" />
       </div>,
       document.body
@@ -175,7 +283,7 @@ export function WinnerModal({
   if (step === 'prompt') {
     return createPortal(
       <div className="fixed inset-0 z-50 bg-black flex flex-col overflow-hidden select-none animate-fade-in">
-        {/* Top tricolor stripe */}
+        {/* Top Bulgarian Tricolor Stripe */}
         <div className="h-[3px] w-full bg-tricolor-horizontal shrink-0" />
 
         {/* Scrollable centered content */}
@@ -184,7 +292,7 @@ export function WinnerModal({
             <img
               src="/logo.png"
               alt="Национална Верига Бадминтон"
-              className="max-h-[55px] sm:max-h-[70px] object-contain drop-shadow mb-1"
+              className="max-h-[50px] sm:max-h-[65px] object-contain drop-shadow mb-1"
             />
 
             {/* Bulgarian Tricolor Indicator */}
@@ -195,7 +303,7 @@ export function WinnerModal({
             </div>
 
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#6bc33a]/15 text-[#6bc33a] border-2 border-[#6bc33a]/40 shadow-xl shadow-[#6bc33a]/20">
-              <Trophy size={36} className="text-amber-400" />
+              <Trophy size={34} className="text-[#6bc33a]" />
             </div>
 
             <div className="space-y-1">
@@ -207,8 +315,8 @@ export function WinnerModal({
               </p>
             </div>
 
-            <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-center">
-              <p className="text-sm font-black text-amber-300 uppercase tracking-wide">
+            <div className="rounded-2xl border border-[#6bc33a]/30 bg-zinc-950 p-4 text-center shadow-lg">
+              <p className="text-sm font-black text-[#6bc33a] uppercase tracking-wide">
                 📢 {lang === 'bg' ? 'Моля, покажете резултата на Главния съдия!' : 'Please present the result to the Head Referee!'}
               </p>
               <p className="text-xs text-zinc-300 mt-1">
@@ -227,7 +335,7 @@ export function WinnerModal({
           </div>
         </div>
 
-        {/* Bottom tricolor stripe */}
+        {/* Bottom Bulgarian Tricolor Stripe */}
         <div className="h-[3px] w-full bg-tricolor-horizontal shrink-0" />
       </div>,
       document.body
