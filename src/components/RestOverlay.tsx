@@ -147,55 +147,42 @@ export function RestOverlay({ open, duration, title, courtNumber, onDismiss }: R
       <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center px-4 py-3 sm:py-6">
         <div className="w-full max-w-lg flex flex-col items-center text-center space-y-3">
           
-          {/* Header Banner: Logo, Title & Court Badge */}
-          <div className="w-full flex items-center justify-between border-b border-zinc-800 pb-2">
-            <div className="flex items-center gap-2">
+          {/* Brand Card: IDENTICAL to WelcomeSplash & SetupModal */}
+          <div className="w-full rounded-xl border border-zinc-800 bg-zinc-950/90 p-2 sm:p-2.5 shadow-xl relative overflow-hidden flex flex-col items-center justify-center">
+            {/* Bulgarian Tricolor Top Accent Stripe: White -> Green -> Red */}
+            <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-tricolor-horizontal" />
+
+            <div className="w-full flex items-center justify-between">
+              <div className="w-8" />
               <img
                 src="/logo.png"
                 alt="Национална Верига Бадминтон"
-                className="max-h-[38px] sm:max-h-[46px] object-contain drop-shadow"
+                className="max-h-[44px] sm:max-h-[58px] landscape:max-h-[38px] object-contain drop-shadow-md"
               />
-              <div className="text-left hidden xs:block">
-                <div className="text-[9px] font-black uppercase tracking-wider text-zinc-400">
-                  {t('appTitle')}
-                </div>
-                <div className="text-xs font-black text-[#6bc33a]">
-                  {lang === 'bg' ? 'Официална BWF почивка' : 'Official BWF Interval'}
-                </div>
+              <div className="flex items-center gap-1.5">
+                {courtNumber && (
+                  <div className="flex items-center gap-1 rounded-lg border border-[#6bc33a]/40 bg-[#6bc33a]/10 px-2 py-0.5">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-[#6bc33a]">{t('courtUpper')}</span>
+                    <span className="text-xs font-black text-white">{courtNumber}</span>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={onDismiss}
+                  className="h-7 w-7 rounded-lg border border-zinc-800 bg-zinc-900/80 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+                  title={lang === 'bg' ? 'Затвори' : 'Close'}
+                >
+                  <X size={14} />
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              {courtNumber && (
-                <div className="flex items-center gap-1.5 rounded-xl border border-[#6bc33a]/40 bg-[#6bc33a]/10 px-2.5 py-1">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-[#6bc33a]">{t('courtUpper')}</span>
-                  <span className="text-sm sm:text-base font-black text-white">{courtNumber}</span>
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={onDismiss}
-                className="h-8 w-8 rounded-lg border border-zinc-800 bg-zinc-900/80 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer"
-                title={lang === 'bg' ? 'Затвори' : 'Close'}
-              >
-                <X size={16} />
-              </button>
+            <div className="w-full pt-1.5 mt-1 border-t border-zinc-800/80 flex items-center justify-center gap-1.5">
+              <Timer size={12} className="text-[#6bc33a]" />
+              <h2 className="text-[10px] sm:text-[11px] font-black text-[#6bc33a] uppercase tracking-wider text-center">
+                {title}
+              </h2>
             </div>
-          </div>
-
-          {/* Bulgarian Tricolor Indicator */}
-          <div className="flex items-center justify-center gap-1.5 -my-0.5">
-            <span className="h-1.5 w-7 rounded-full bg-white shadow-sm ring-1 ring-white/30" />
-            <span className="h-1.5 w-7 rounded-full bg-[#6bc33a] shadow-sm ring-1 ring-emerald-400/30" />
-            <span className="h-1.5 w-7 rounded-full bg-[#e11e24] shadow-sm ring-1 ring-red-500/30" />
-          </div>
-
-          {/* Interval Title Banner */}
-          <div className="flex items-center gap-2 rounded-full bg-[#6bc33a]/15 border border-[#6bc33a]/30 px-3.5 py-1 shadow-sm">
-            <Timer size={13} className="text-[#6bc33a]" />
-            <span className="text-xs font-black uppercase tracking-wider text-[#6bc33a]">
-              {title}
-            </span>
           </div>
 
           {/* Circular Countdown Progress Card */}

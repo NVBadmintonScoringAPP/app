@@ -207,13 +207,15 @@ export function AdminModal({
     <Dialog open={open} onClose={handleClose} title="" className="max-w-xl max-h-[92vh] overflow-y-auto">
       {!verified ? (
         <div className="flex flex-col items-center text-center p-3 select-none">
-          <img src="/logo.png" alt="NV" className="h-12 object-contain mb-1" />
-
-          {/* Bulgarian Tricolor: Left-to-Right: White, Green (#6bc33a), Red (#e11e24) */}
-          <div className="flex items-center justify-center gap-1.5 my-2" title="Български трикольор: Бяло, Зелено, Червено">
-            <span className="h-1.5 w-6 rounded-full bg-white shadow-sm ring-1 ring-white/30" />
-            <span className="h-1.5 w-6 rounded-full bg-[#6bc33a] shadow-sm ring-1 ring-emerald-400/30" />
-            <span className="h-1.5 w-6 rounded-full bg-[#e11e24] shadow-sm ring-1 ring-red-500/30" />
+          {/* Brand Card: IDENTICAL to WelcomeSplash */}
+          <div className="w-full rounded-xl border border-zinc-800 bg-zinc-950/90 p-2.5 shadow-xl relative overflow-hidden flex flex-col items-center justify-center mb-3">
+            <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-tricolor-horizontal" />
+            <img src="/logo.png" alt="NV" className="max-h-[44px] sm:max-h-[56px] object-contain drop-shadow" />
+            <div className="w-full pt-1.5 mt-1 border-t border-zinc-800/80">
+              <h2 className="text-[10px] font-black text-[#6bc33a] uppercase tracking-widest text-center">
+                НАЦИОНАЛНА ВЕРИГА БАДМИНТОН
+              </h2>
+            </div>
           </div>
 
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 mb-2 border border-amber-500/30">

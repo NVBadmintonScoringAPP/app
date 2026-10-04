@@ -114,44 +114,34 @@ export function WinnerModal({
         <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center px-4 py-4 sm:py-6">
           <div className="w-full max-w-lg flex flex-col items-center text-center space-y-3.5">
             
-            {/* Header: Logo, Tricolor & Court Badge */}
-            <div className="w-full flex items-center justify-between border-b border-zinc-800 pb-2">
-              <div className="flex items-center gap-2">
+            {/* Brand Card: IDENTICAL to WelcomeSplash & SetupModal */}
+            <div className="w-full rounded-xl border border-zinc-800 bg-zinc-950/90 p-2 sm:p-2.5 shadow-xl relative overflow-hidden flex flex-col items-center justify-center">
+              {/* Bulgarian Tricolor Top Accent Stripe: White -> Green -> Red */}
+              <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-tricolor-horizontal" />
+
+              <div className="w-full flex items-center justify-between">
+                <div className="w-12" />
                 <img
                   src="/logo.png"
                   alt="Национална Верига Бадминтон"
-                  className="max-h-[38px] sm:max-h-[46px] object-contain drop-shadow"
+                  className="max-h-[44px] sm:max-h-[58px] landscape:max-h-[38px] object-contain drop-shadow-md"
                 />
-                <div className="text-left hidden xs:block">
-                  <div className="text-[9px] font-black uppercase tracking-wider text-zinc-400">
-                    {t('appTitle')}
-                  </div>
-                  <div className="text-xs font-black text-[#6bc33a]">
-                    {lang === 'bg' ? 'Официално съдийско табло' : 'Official Umpire Scoreboard'}
-                  </div>
+                <div className="flex items-center gap-1.5">
+                  {courtNumber && (
+                    <div className="flex items-center gap-1 rounded-lg border border-[#6bc33a]/40 bg-[#6bc33a]/10 px-2 py-0.5">
+                      <span className="text-[9px] font-black uppercase tracking-wider text-[#6bc33a]">{t('courtUpper')}</span>
+                      <span className="text-xs font-black text-white">{courtNumber}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Court Badge */}
-              <div className="flex items-center gap-1.5 rounded-xl border border-[#6bc33a]/40 bg-[#6bc33a]/10 px-2.5 py-1">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#6bc33a]">{t('courtUpper')}</span>
-                <span className="text-sm sm:text-base font-black text-white">{courtNumber}</span>
+              <div className="w-full pt-1.5 mt-1 border-t border-zinc-800/80 flex items-center justify-center gap-2">
+                <span className="flex h-2 w-2 rounded-full bg-[#6bc33a] animate-ping" />
+                <h2 className="text-[10px] sm:text-[11px] font-black text-[#6bc33a] uppercase tracking-widest text-center">
+                  {t('gameFinishedTitle', { set: currentSetNum })}
+                </h2>
               </div>
-            </div>
-
-            {/* Bulgarian Tricolor Indicator */}
-            <div className="flex items-center justify-center gap-1.5 -my-1">
-              <span className="h-1.5 w-7 rounded-full bg-white shadow-sm ring-1 ring-white/30" />
-              <span className="h-1.5 w-7 rounded-full bg-[#6bc33a] shadow-sm ring-1 ring-emerald-400/30" />
-              <span className="h-1.5 w-7 rounded-full bg-[#e11e24] shadow-sm ring-1 ring-red-500/30" />
-            </div>
-
-            {/* Set Status Banner */}
-            <div className="flex items-center gap-2 rounded-full bg-[#6bc33a]/15 border border-[#6bc33a]/30 px-3.5 py-1 shadow-sm">
-              <span className="flex h-2 w-2 rounded-full bg-[#6bc33a] animate-ping" />
-              <span className="text-xs font-black uppercase tracking-widest text-[#6bc33a]">
-                {t('gameFinishedTitle', { set: currentSetNum })}
-              </span>
             </div>
 
             {/* Winner Announcement Card with Scoreboard Breakdown */}
@@ -289,17 +279,19 @@ export function WinnerModal({
         {/* Scrollable centered content */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center px-4 py-6">
           <div className="w-full max-w-md flex flex-col items-center text-center space-y-4">
-            <img
-              src="/logo.png"
-              alt="Национална Верига Бадминтон"
-              className="max-h-[50px] sm:max-h-[65px] object-contain drop-shadow mb-1"
-            />
-
-            {/* Bulgarian Tricolor Indicator */}
-            <div className="flex items-center justify-center gap-1.5 my-1">
-              <span className="h-1.5 w-7 rounded-full bg-white shadow-sm ring-1 ring-white/30" />
-              <span className="h-1.5 w-7 rounded-full bg-[#6bc33a] shadow-sm ring-1 ring-emerald-400/30" />
-              <span className="h-1.5 w-7 rounded-full bg-[#e11e24] shadow-sm ring-1 ring-red-500/30" />
+            {/* Brand Card: IDENTICAL to WelcomeSplash */}
+            <div className="w-full rounded-xl border border-zinc-800 bg-zinc-950/90 p-2.5 sm:p-3 shadow-xl relative overflow-hidden flex flex-col items-center justify-center">
+              <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-tricolor-horizontal" />
+              <img
+                src="/logo.png"
+                alt="Национална Верига Бадминтон"
+                className="max-h-[50px] sm:max-h-[65px] landscape:max-h-[40px] object-contain drop-shadow-md"
+              />
+              <div className="w-full pt-1.5 mt-1 border-t border-zinc-800/80">
+                <h2 className="text-[10px] sm:text-[11px] font-black text-[#6bc33a] uppercase tracking-widest text-center">
+                  {t('appSubtitle')}
+                </h2>
+              </div>
             </div>
 
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#6bc33a]/15 text-[#6bc33a] border-2 border-[#6bc33a]/40 shadow-xl shadow-[#6bc33a]/20">
@@ -354,12 +346,13 @@ export function WinnerModal({
           
           {/* Left Column: Match Details & Big Scoreboard */}
           <div className="lg:col-span-7 flex flex-col space-y-3">
-            {/* Brand Header Banner */}
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+            {/* Brand Header Banner in Card */}
+            <div className="w-full rounded-xl border border-zinc-800 bg-zinc-950/90 p-2.5 shadow-lg relative overflow-hidden flex items-center justify-between">
+              <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-tricolor-horizontal" />
               <div className="flex items-center gap-2">
-                <img src="/logo.png" alt="NV" className="h-8 object-contain" />
+                <img src="/logo.png" alt="NV" className="h-8 sm:h-9 object-contain" />
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                  <div className="text-[9px] font-black uppercase tracking-wider text-zinc-400">
                     {t('appTitle')}
                   </div>
                   <div className="text-xs font-black text-[#6bc33a]">

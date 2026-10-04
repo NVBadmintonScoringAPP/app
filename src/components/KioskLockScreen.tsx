@@ -78,18 +78,19 @@ export function KioskLockScreen({ pin, onUnlocked, courtNumber }: KioskLockScree
       </div>
 
       <div className="w-full max-w-sm flex flex-col items-center">
-        {/* Official NV Badminton Logo */}
-        <img
-          src="/logo.png"
-          alt="Национална Верига Бадминтон"
-          className="h-10 sm:h-12 object-contain drop-shadow mb-1"
-        />
-
-        {/* Bulgarian Tricolor: Left-to-Right: White, Green (#6bc33a), Red (#e11e24) */}
-        <div className="flex items-center justify-center gap-1.5 mb-3" title="Български трикольор: Бяло, Зелено, Червено">
-          <span className="h-1.5 w-7 rounded-full bg-white shadow-sm ring-1 ring-white/30" />
-          <span className="h-1.5 w-7 rounded-full bg-[#6bc33a] shadow-sm ring-1 ring-emerald-400/30" />
-          <span className="h-1.5 w-7 rounded-full bg-[#e11e24] shadow-sm ring-1 ring-red-500/30" />
+        {/* Brand Card: IDENTICAL to WelcomeSplash */}
+        <div className="w-full rounded-xl border border-zinc-800 bg-zinc-950/90 p-2.5 shadow-xl relative overflow-hidden flex flex-col items-center justify-center mb-4">
+          <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-tricolor-horizontal" />
+          <img
+            src="/logo.png"
+            alt="Национална Верига Бадминтон"
+            className="max-h-[44px] sm:max-h-[56px] object-contain drop-shadow"
+          />
+          <div className="w-full pt-1.5 mt-1 border-t border-zinc-800/80">
+            <h2 className="text-[10px] font-black text-[#6bc33a] uppercase tracking-widest text-center">
+              {t('appSubtitle')}
+            </h2>
+          </div>
         </div>
 
         <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 mb-3 shadow-lg shadow-emerald-500/10">
