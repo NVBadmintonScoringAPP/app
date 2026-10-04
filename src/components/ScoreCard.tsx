@@ -61,11 +61,11 @@ export function ScoreCard({
           glowScore: 'text-white drop-shadow-[0_4px_16px_rgba(225,30,36,0.25)]',
         }
       : {
-          active: 'border-sky-500 bg-sky-950/40 shadow-xl shadow-sky-950/50 ring-2 ring-sky-500/40',
-          button: 'bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-black shadow-lg',
-          badge: 'bg-sky-500 text-black font-black',
+          active: 'border-amber-400 bg-amber-950/20 shadow-xl ring-2 ring-amber-400/40',
+          button: 'bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-black font-black shadow-lg',
+          badge: 'bg-amber-400 text-black font-black',
           border: 'border-zinc-800 bg-zinc-950',
-          accentText: 'text-sky-400',
+          accentText: 'text-amber-400',
           glowScore: 'text-white',
         };
 

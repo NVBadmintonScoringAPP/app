@@ -213,7 +213,7 @@ export function WelcomeSplash({
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 bg-black/60 rounded-lg p-2 border border-zinc-800/80">
-                      <Users size={14} className="text-sky-400 shrink-0" />
+                      <Users size={14} className="text-[#6bc33a] shrink-0" />
                       <div className="min-w-0">
                         <span className="text-[9px] text-zinc-400 block uppercase font-bold">{t('playersCountLabel')}</span>
                         <span className="font-bold text-zinc-200 text-xs">

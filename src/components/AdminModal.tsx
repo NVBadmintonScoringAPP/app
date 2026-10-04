@@ -575,7 +575,7 @@ export function AdminModal({
                   onClick={toggleFullscreen}
                   className="flex items-center justify-center gap-2 h-11 border-slate-800 bg-slate-900 text-xs font-bold text-slate-200 hover:bg-slate-800"
                 >
-                  <Maximize size={15} className="text-sky-400" />
+                  <Maximize size={15} className="text-[#6bc33a]" />
                   Цял екран (Kiosk)
                 </Button>
 

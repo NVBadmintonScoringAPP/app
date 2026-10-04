@@ -532,7 +532,7 @@ export function TossModal({
                 </div>
 
                 <div>
-                  <span className="text-[10px] font-bold text-sky-400 block mb-1">
+                  <span className="text-[10px] font-bold text-[#e11e24] block mb-1">
                     {lang === 'bg' ? 'Първи посрещащ:' : 'First Receiver:'}
                   </span>
                   <div className="flex flex-col gap-1">
@@ -556,7 +556,7 @@ export function TossModal({
                           className={cn(
                             'rounded-lg border py-1.5 px-2 text-xs font-bold transition-all text-left truncate cursor-pointer',
                             isSelected
-                              ? 'border-sky-400 bg-sky-500/20 text-sky-300'
+                              ? 'border-[#e11e24] bg-[#e11e24]/20 text-[#e11e24]'
                               : 'border-zinc-800 bg-zinc-900 text-zinc-400'
                           )}
                         >

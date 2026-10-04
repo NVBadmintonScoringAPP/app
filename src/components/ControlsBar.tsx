@@ -41,9 +41,9 @@ export function ControlsBar({
       <button
         type="button"
         onClick={onSwap}
-        className="flex flex-1 items-center justify-center gap-2 rounded-xl sm:rounded-2xl border border-sky-500/40 bg-zinc-900/90 py-2.5 sm:py-3.5 px-3 text-sky-300 hover:border-sky-400 hover:bg-sky-500/10 transition-all active:scale-[0.98] shadow-md cursor-pointer"
+        className="flex flex-1 items-center justify-center gap-2 rounded-xl sm:rounded-2xl border border-zinc-700 bg-zinc-900/90 py-2.5 sm:py-3.5 px-3 text-zinc-100 hover:border-zinc-500 hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-md cursor-pointer"
       >
-        <ArrowLeftRight size={19} className="text-sky-400" />
+        <ArrowLeftRight size={19} className="text-zinc-300" />
         <span className="text-xs sm:text-sm font-black tracking-wide">
           {t('swapSides')}
         </span>

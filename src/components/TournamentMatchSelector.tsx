@@ -247,7 +247,7 @@ export function TournamentMatchSelector({
                 </span>
               )}
               {m.courtNumber && (
-                <span className="text-[10px] font-bold bg-slate-800 text-sky-300 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-bold bg-slate-800 text-amber-300 px-2 py-0.5 rounded">
                   по програма: Корт {m.courtNumber}
                 </span>
               )}
@@ -409,7 +409,7 @@ export function TournamentMatchSelector({
                 onClick={() => setShowTournamentDetails(!showTournamentDetails)}
                 className="h-8 text-xs border-zinc-700 bg-zinc-800/80 text-zinc-200 font-bold"
               >
-                <Info size={13} className="mr-1 text-sky-400" />
+                <Info size={13} className="mr-1 text-[#6bc33a]" />
                 {showTournamentDetails ? (lang === 'bg' ? 'Скрий' : 'Hide') : (lang === 'bg' ? 'Информация' : 'Info')}
               </Button>
             )}
@@ -443,7 +443,7 @@ export function TournamentMatchSelector({
             )}
             {info.dates && (
               <span className="bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-md flex items-center gap-1">
-                <Calendar size={11} className="text-sky-400" />
+                <Calendar size={11} className="text-[#6bc33a]" />
                 {info.dates}
               </span>
             )}
@@ -459,7 +459,7 @@ export function TournamentMatchSelector({
         )}
 
         {info && showTournamentDetails && (
-          <div className="mt-2 p-3 rounded-xl border border-sky-500/30 bg-sky-950/15 space-y-3 text-[11px]">
+          <div className="mt-2 p-3 rounded-xl border border-zinc-800 bg-zinc-900/60 space-y-3 text-[11px]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {detailRow('🏆 Турнир', info.name)}
               {detailRow('🏛️ Организатор', info.organization)}

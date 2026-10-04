@@ -410,7 +410,7 @@ export function WinnerModal({
                   </>
                 ) : (
                   <>
-                    <FileDown size={14} className="mr-1.5 text-sky-400" />
+                    <FileDown size={14} className="mr-1.5 text-[#6bc33a]" />
                     {t('downloadPdfScoresheet')}
                   </>
                 )}
