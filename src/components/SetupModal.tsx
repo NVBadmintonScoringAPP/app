@@ -47,13 +47,16 @@ export function SetupModal({ open, initialMode, onClose, onStart }: SetupModalPr
     }
   }, [open, initialMode]);
 
-  const [matchNumber, setMatchNumber] = useState('Match 1');
   const [playerLeft, setPlayerLeft] = useState('Player 1');
   const [playerRight, setPlayerRight] = useState('Player 2');
   const [leftPartner, setLeftPartner] = useState('');
   const [rightPartner, setRightPartner] = useState('');
   const [leftClub, setLeftClub] = useState('');
+  const [leftPartnerClub, setLeftPartnerClub] = useState('');
   const [rightClub, setRightClub] = useState('');
+  const [rightPartnerClub, setRightPartnerClub] = useState('');
+  const [sameClubLeft, setSameClubLeft] = useState(true);
+  const [sameClubRight, setSameClubRight] = useState(true);
   const [court, setCourt] = useState('1');
   const [format, setFormat] = useState<MatchFormat>('3x21');
   const [gameType, setGameType] = useState<GameType>('singles');
@@ -77,15 +80,25 @@ export function SetupModal({ open, initialMode, onClose, onStart }: SetupModalPr
       };
     }
 
+    const finalLeftClub =
+      gameType === 'doubles' && !sameClubLeft && leftPartnerClub.trim()
+        ? `${leftClub.trim()} / ${leftPartnerClub.trim()}`
+        : leftClub.trim();
+
+    const finalRightClub =
+      gameType === 'doubles' && !sameClubRight && rightPartnerClub.trim()
+        ? `${rightClub.trim()} / ${rightPartnerClub.trim()}`
+        : rightClub.trim();
+
     onStart({
       matchId: undefined,
-      matchNumber: matchNumber || 'Match 1',
-      playerLeft: playerLeft || 'Player 1',
-      playerRight: playerRight || 'Player 2',
-      playerLeftPartner: leftPartner,
-      playerRightPartner: rightPartner,
-      playerLeftClub: leftClub,
-      playerRightClub: rightClub,
+      matchNumber: `Корт ${court || '1'}`,
+      playerLeft: playerLeft || (lang === 'bg' ? 'Състезател 1' : 'Player 1'),
+      playerRight: playerRight || (lang === 'bg' ? 'Състезател 2' : 'Player 2'),
+      playerLeftPartner: gameType === 'doubles' ? leftPartner : '',
+      playerRightPartner: gameType === 'doubles' ? rightPartner : '',
+      playerLeftClub: finalLeftClub,
+      playerRightClub: finalRightClub,
       courtNumber: court || '1',
       format,
       gameType,
@@ -199,22 +212,12 @@ export function SetupModal({ open, initialMode, onClose, onStart }: SetupModalPr
         ) : (
           /* PURE MANUAL ENTRY FORM - NO TOURNAMENT SOFTWARE TABS */
           <div className="w-full space-y-2 pt-0.5 text-left">
-            {/* 1. Match Settings: Court, Number, Game Type, Format */}
+            {/* 1. Match Settings: Court, Discipline, Format */}
             <div className="rounded-xl border border-zinc-800 bg-zinc-950/90 p-2.5 space-y-2 shadow-lg relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-[2px] bg-tricolor-horizontal" />
 
-              <div className="grid grid-cols-2 gap-2 pt-0.5">
-                <div>
-                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                    {lang === 'bg' ? 'Номер на мач' : 'Match Number'}
-                  </label>
-                  <Input
-                    value={matchNumber}
-                    onChange={(e) => setMatchNumber(e.target.value)}
-                    placeholder="Match 1"
-                    className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
-                  />
-                </div>
+              {/* Court Number & Discipline in clean row */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-0.5">
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                     {lang === 'bg' ? 'Корт №' : 'Court #'}
@@ -226,28 +229,27 @@ export function SetupModal({ open, initialMode, onClose, onStart }: SetupModalPr
                     className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
                   />
                 </div>
-              </div>
 
-              {/* Discipline Selection */}
-              <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                  {lang === 'bg' ? 'Дисциплина' : 'Discipline'}
-                </label>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className={toggleClass(gameType === 'singles')}
-                    onClick={() => setGameType('singles')}
-                  >
-                    {lang === 'bg' ? 'Единично (Singles)' : 'Singles'}
-                  </button>
-                  <button
-                    type="button"
-                    className={toggleClass(gameType === 'doubles')}
-                    onClick={() => setGameType('doubles')}
-                  >
-                    {lang === 'bg' ? 'Двойки (Doubles)' : 'Doubles'}
-                  </button>
+                <div className="sm:col-span-2">
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    {lang === 'bg' ? 'Дисциплина' : 'Discipline'}
+                  </label>
+                  <div className="flex gap-1.5">
+                    <button
+                      type="button"
+                      className={toggleClass(gameType === 'singles')}
+                      onClick={() => setGameType('singles')}
+                    >
+                      {lang === 'bg' ? 'Единично' : 'Singles'}
+                    </button>
+                    <button
+                      type="button"
+                      className={toggleClass(gameType === 'doubles')}
+                      onClick={() => setGameType('doubles')}
+                    >
+                      {lang === 'bg' ? 'Двойки' : 'Doubles'}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -256,7 +258,7 @@ export function SetupModal({ open, initialMode, onClose, onStart }: SetupModalPr
                 <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                   {lang === 'bg' ? 'Формат на геймовете' : 'Scoring Format'}
                 </label>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5">
                   {(['3x21', '3x15', 'custom'] as MatchFormat[]).map((f) => (
                     <button
                       type="button"
@@ -264,7 +266,7 @@ export function SetupModal({ open, initialMode, onClose, onStart }: SetupModalPr
                       className={toggleClass(format === f)}
                       onClick={() => setFormat(f)}
                     >
-                      {f === '3x21' ? 'BWF 3 × 21' : f === '3x15' ? 'BWF 3 × 15' : 'Персонализиран'}
+                      {f === '3x21' ? '3 × 21' : f === '3x15' ? '3 × 15' : (lang === 'bg' ? 'Персонализиран' : 'Custom')}
                     </button>
                   ))}
                 </div>
@@ -330,72 +332,162 @@ export function SetupModal({ open, initialMode, onClose, onStart }: SetupModalPr
               )}
             </div>
 
-            {/* 2. Team 1 (Left / NV Green) & Team 2 (Right / NV Red) */}
+            {/* 2. Team A (Player 1) & Team B (Player 2) - Sides determined upon coin toss! */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {/* Team 1 Card: Official NV Green Accent */}
+              {/* Team A Card */}
               <div className="rounded-xl border border-[#6bc33a]/40 bg-zinc-950/90 p-2.5 space-y-1.5 shadow-lg relative overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#6bc33a]" />
                 <div className="flex items-center justify-between pb-0.5">
                   <span className="text-[11px] font-black uppercase tracking-wider text-[#6bc33a]">
                     {gameType === 'singles'
-                      ? (lang === 'bg' ? 'Играч 1 (Лява страна)' : 'Player 1 (Left Side)')
-                      : (lang === 'bg' ? 'Отбор 1 (Лява страна)' : 'Team 1 (Left Side)')}
+                      ? (lang === 'bg' ? 'Състезател 1' : 'Player 1')
+                      : (lang === 'bg' ? 'Отбор А' : 'Team A')}
                   </span>
                   <span className="w-2 h-2 rounded-full bg-[#6bc33a]" />
                 </div>
-                <Input
-                  value={playerLeft}
-                  onChange={(e) => setPlayerLeft(e.target.value)}
-                  placeholder={lang === 'bg' ? 'Име на състезател 1' : 'Player 1 Name'}
-                  className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
-                />
-                {gameType === 'doubles' && (
+
+                <div>
+                  <label className="mb-0.5 block text-[9px] font-bold uppercase tracking-wider text-zinc-400">
+                    {lang === 'bg' ? 'Име на състезател 1' : 'Player 1 Name'}
+                  </label>
                   <Input
-                    value={leftPartner}
-                    onChange={(e) => setLeftPartner(e.target.value)}
-                    placeholder={lang === 'bg' ? 'Партньор 1' : 'Partner 1 Name'}
+                    value={playerLeft}
+                    onChange={(e) => setPlayerLeft(e.target.value)}
+                    placeholder={lang === 'bg' ? 'Име на състезател 1' : 'Player 1 Name'}
                     className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
                   />
+                </div>
+
+                <div>
+                  <label className="mb-0.5 block text-[9px] font-bold uppercase tracking-wider text-zinc-400">
+                    {lang === 'bg' ? 'Клуб на състезател 1' : 'Player 1 Club'}
+                  </label>
+                  <Input
+                    value={leftClub}
+                    onChange={(e) => setLeftClub(e.target.value)}
+                    placeholder={lang === 'bg' ? 'Клуб / Град' : 'Club / City'}
+                    className="h-8 text-xs bg-black/60 border-zinc-800 text-zinc-200"
+                  />
+                </div>
+
+                {/* Doubles: Partner & Club logic */}
+                {gameType === 'doubles' && (
+                  <div className="pt-1 border-t border-zinc-800/80 space-y-1.5">
+                    <div>
+                      <label className="mb-0.5 block text-[9px] font-bold uppercase tracking-wider text-zinc-400">
+                        {lang === 'bg' ? 'Партньор 1 (Отбор А)' : 'Partner 1 (Team A)'}
+                      </label>
+                      <Input
+                        value={leftPartner}
+                        onChange={(e) => setLeftPartner(e.target.value)}
+                        placeholder={lang === 'bg' ? 'Име на партньор' : 'Partner Name'}
+                        className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
+                      />
+                    </div>
+
+                    <label className="flex items-center gap-2 text-[10px] font-bold text-zinc-300 cursor-pointer pt-0.5 select-none">
+                      <input
+                        type="checkbox"
+                        checked={sameClubLeft}
+                        onChange={(e) => setSameClubLeft(e.target.checked)}
+                        className="w-3.5 h-3.5 rounded accent-[#6bc33a] cursor-pointer"
+                      />
+                      <span>{lang === 'bg' ? 'И двамата са от един клуб' : 'Both from same club'}</span>
+                    </label>
+
+                    {!sameClubLeft && (
+                      <div>
+                        <label className="mb-0.5 block text-[9px] font-bold uppercase tracking-wider text-zinc-400">
+                          {lang === 'bg' ? 'Клуб на партньор 1' : 'Partner 1 Club'}
+                        </label>
+                        <Input
+                          value={leftPartnerClub}
+                          onChange={(e) => setLeftPartnerClub(e.target.value)}
+                          placeholder={lang === 'bg' ? 'Клуб на партньора' : 'Partner Club'}
+                          className="h-8 text-xs bg-black/60 border-zinc-800 text-zinc-200"
+                        />
+                      </div>
+                    )}
+                  </div>
                 )}
-                <Input
-                  value={leftClub}
-                  onChange={(e) => setLeftClub(e.target.value)}
-                  placeholder={t('player1ClubPlaceholder')}
-                  className="h-8 text-xs bg-black/60 border-zinc-800 text-zinc-300"
-                />
               </div>
 
-              {/* Team 2 Card: Official NV Red Accent */}
+              {/* Team B Card */}
               <div className="rounded-xl border border-[#e11e24]/40 bg-zinc-950/90 p-2.5 space-y-1.5 shadow-lg relative overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#e11e24]" />
                 <div className="flex items-center justify-between pb-0.5">
                   <span className="text-[11px] font-black uppercase tracking-wider text-[#e11e24]">
                     {gameType === 'singles'
-                      ? (lang === 'bg' ? 'Играч 2 (Дясна страна)' : 'Player 2 (Right Side)')
-                      : (lang === 'bg' ? 'Отбор 2 (Дясна страна)' : 'Team 2 (Right Side)')}
+                      ? (lang === 'bg' ? 'Състезател 2' : 'Player 2')
+                      : (lang === 'bg' ? 'Отбор Б' : 'Team B')}
                   </span>
                   <span className="w-2 h-2 rounded-full bg-[#e11e24]" />
                 </div>
-                <Input
-                  value={playerRight}
-                  onChange={(e) => setPlayerRight(e.target.value)}
-                  placeholder={lang === 'bg' ? 'Име на състезател 2' : 'Player 2 Name'}
-                  className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
-                />
-                {gameType === 'doubles' && (
+
+                <div>
+                  <label className="mb-0.5 block text-[9px] font-bold uppercase tracking-wider text-zinc-400">
+                    {lang === 'bg' ? 'Име на състезател 2' : 'Player 2 Name'}
+                  </label>
                   <Input
-                    value={rightPartner}
-                    onChange={(e) => setRightPartner(e.target.value)}
-                    placeholder={lang === 'bg' ? 'Партньор 2' : 'Partner 2 Name'}
+                    value={playerRight}
+                    onChange={(e) => setPlayerRight(e.target.value)}
+                    placeholder={lang === 'bg' ? 'Име на състезател 2' : 'Player 2 Name'}
                     className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
                   />
+                </div>
+
+                <div>
+                  <label className="mb-0.5 block text-[9px] font-bold uppercase tracking-wider text-zinc-400">
+                    {lang === 'bg' ? 'Клуб на състезател 2' : 'Player 2 Club'}
+                  </label>
+                  <Input
+                    value={rightClub}
+                    onChange={(e) => setRightClub(e.target.value)}
+                    placeholder={lang === 'bg' ? 'Клуб / Град' : 'Club / City'}
+                    className="h-8 text-xs bg-black/60 border-zinc-800 text-zinc-200"
+                  />
+                </div>
+
+                {/* Doubles: Partner & Club logic */}
+                {gameType === 'doubles' && (
+                  <div className="pt-1 border-t border-zinc-800/80 space-y-1.5">
+                    <div>
+                      <label className="mb-0.5 block text-[9px] font-bold uppercase tracking-wider text-zinc-400">
+                        {lang === 'bg' ? 'Партньор 2 (Отбор Б)' : 'Partner 2 (Team B)'}
+                      </label>
+                      <Input
+                        value={rightPartner}
+                        onChange={(e) => setRightPartner(e.target.value)}
+                        placeholder={lang === 'bg' ? 'Име на партньор' : 'Partner Name'}
+                        className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
+                      />
+                    </div>
+
+                    <label className="flex items-center gap-2 text-[10px] font-bold text-zinc-300 cursor-pointer pt-0.5 select-none">
+                      <input
+                        type="checkbox"
+                        checked={sameClubRight}
+                        onChange={(e) => setSameClubRight(e.target.checked)}
+                        className="w-3.5 h-3.5 rounded accent-[#6bc33a] cursor-pointer"
+                      />
+                      <span>{lang === 'bg' ? 'И двамата са от един клуб' : 'Both from same club'}</span>
+                    </label>
+
+                    {!sameClubRight && (
+                      <div>
+                        <label className="mb-0.5 block text-[9px] font-bold uppercase tracking-wider text-zinc-400">
+                          {lang === 'bg' ? 'Клуб на партньор 2' : 'Partner 2 Club'}
+                        </label>
+                        <Input
+                          value={rightPartnerClub}
+                          onChange={(e) => setRightPartnerClub(e.target.value)}
+                          placeholder={lang === 'bg' ? 'Клуб на партньора' : 'Partner Club'}
+                          className="h-8 text-xs bg-black/60 border-zinc-800 text-zinc-200"
+                        />
+                      </div>
+                    )}
+                  </div>
                 )}
-                <Input
-                  value={rightClub}
-                  onChange={(e) => setRightClub(e.target.value)}
-                  placeholder={t('player2ClubPlaceholder')}
-                  className="h-8 text-xs bg-black/60 border-zinc-800 text-zinc-300"
-                />
               </div>
             </div>
 
