@@ -6,7 +6,6 @@ import { RestOverlay } from '@/components/RestOverlay';
 import { SetupModal, type SetupConfig } from '@/components/SetupModal';
 import { TossModal } from '@/components/TossModal';
 import { WinnerModal } from '@/components/WinnerModal';
-import { SideSwitchPrompt } from '@/components/SideSwitchPrompt';
 import { CardsModal } from '@/components/CardsModal';
 import { AdminModal } from '@/components/AdminModal';
 import { SyncQueueModal } from '@/components/SyncQueueModal';
@@ -29,7 +28,6 @@ import {
   calculateRallyOutcome,
   shouldSwitchSidesInDecider,
   shouldTriggerInterval,
-  shouldPromptSideSwitchBetweenSets,
   swapPositionsAcrossSides,
 } from '@/lib/bwf';
 import type {
@@ -156,8 +154,6 @@ export default function App() {
   const [showRest, setShowRest] = useState(false);
   const [restTitle, setRestTitle] = useState('Interval');
   const [restDuration, setRestDuration] = useState(INTERVAL_DURATION);
-  const [showSideSwitch, setShowSideSwitch] = useState(false);
-  const [sideSwitchMsg, setSideSwitchMsg] = useState('');
   const [showCards, setShowCards] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showSyncQueue, setShowSyncQueue] = useState(false);
@@ -398,15 +394,6 @@ export default function App() {
           setWinner(setWinnerSide);
           setShowWinner(true);
           audio.playSetWinSound();
-
-          // 120s break between sets as per BWF Law 16.2.1
-          if (shouldPromptSideSwitchBetweenSets(currentSet, config)) {
-            setTimeout(() => {
-              setRestTitle(`Почивка между геймове (120s) - Гейм ${currentSet}`);
-              setRestDuration(SET_BREAK_DURATION);
-              setShowRest(true);
-            }, 1200);
-          }
         }
 
         await persistMatch(
@@ -422,23 +409,6 @@ export default function App() {
         );
         await logPointEvent(rallyWinner, newLeft, newRight, serverName, receiverName);
       } else {
-        // Check for 60s interval at 11 pts (or 8 for 3x15)
-        const triggerInterval = shouldTriggerInterval(
-          scoreLeft,
-          scoreRight,
-          newLeft,
-          newRight,
-          config,
-          intervalTriggeredRef.current
-        );
-
-        if (triggerInterval) {
-          intervalTriggeredRef.current = true;
-          setRestTitle(`Почивка на ${config.intervalAt}-та точка (60s)`);
-          setRestDuration(INTERVAL_DURATION);
-          setShowRest(true);
-        }
-
         // Check for deciding set side change at 11 pts (or 8 for 3x15)
         const triggerDeciderSwitch = shouldSwitchSidesInDecider(
           scoreLeft,
@@ -450,12 +420,28 @@ export default function App() {
           deciderSwitchedRef.current
         );
 
+        // Check for 60s interval at 11 pts (or 8 for 3x15)
+        const triggerInterval = shouldTriggerInterval(
+          scoreLeft,
+          scoreRight,
+          newLeft,
+          newRight,
+          config,
+          intervalTriggeredRef.current
+        );
+
         if (triggerDeciderSwitch) {
           deciderSwitchedRef.current = true;
-          setSideSwitchMsg(
-            `Решаващ ${currentSet}-ти гейм: Достигнати ${config.sideSwitchAt} точки! Играчите сменят полетата.`
-          );
-          setShowSideSwitch(true);
+          intervalTriggeredRef.current = true;
+          doSwapSides();
+          setRestTitle(`Почивка на ${config.sideSwitchAt}-та точка (60s) • Смяна на полетата`);
+          setRestDuration(INTERVAL_DURATION);
+          setShowRest(true);
+        } else if (triggerInterval) {
+          intervalTriggeredRef.current = true;
+          setRestTitle(`Почивка на ${config.intervalAt}-та точка (60s)`);
+          setRestDuration(INTERVAL_DURATION);
+          setShowRest(true);
         }
 
         await persistMatch(
@@ -560,30 +546,77 @@ export default function App() {
     });
   };
 
-  const handleSideSwitchConfirm = () => {
-    doSwapSides();
-    setShowSideSwitch(false);
-  };
-
   // Next set transition (winner of previous set serves first as per BWF rules!)
-  const handleStartNewSet = () => {
-    setSetScores((prev) => [...prev, { left: scoreLeft, right: scoreRight }]);
+  const handleStartNewSet = async () => {
+    // 1. Record completed set score
+    const finishedSet = { left: scoreLeft, right: scoreRight };
+    setSetScores((prev) => [...prev, finishedSet]);
+
+    // 2. Identify winner of previous set ('left' or 'right')
+    const prevWinnerSide = winner;
+
+    // 3. Swap players across court ends for next set (BWF Law 8.1.1, 8.1.2)
+    const newPlayerLeft = playerRight;
+    const newPlayerRight = playerLeft;
+    const newPlayerLeftPartner = playerRightPartner;
+    const newPlayerRightPartner = playerLeftPartner;
+    const newPlayerLeftClub = playerRightClub;
+    const newPlayerRightClub = playerLeftClub;
+    const newSetsLeft = setsRight;
+    const newSetsRight = setsLeft;
+
+    setPlayerLeft(newPlayerLeft);
+    setPlayerRight(newPlayerRight);
+    setPlayerLeftPartner(newPlayerLeftPartner);
+    setPlayerRightPartner(newPlayerRightPartner);
+    setPlayerLeftClub(newPlayerLeftClub);
+    setPlayerRightClub(newPlayerRightClub);
+    setSetsLeft(newSetsLeft);
+    setSetsRight(newSetsRight);
+
+    // 4. CRITICAL: ZERO THE SCORES for the new set! (Зануляване на резултата)
     setScoreLeft(0);
     setScoreRight(0);
-    setCurrentSet(currentSet + 1);
-    setHistory([]);
-    setShowWinner(false);
+
+    // 5. Serving side for the new set:
+    // BWF Law 7.4: The winning side of a game shall serve first in the next game.
+    // If the winning team was on 'right', they have now moved to 'left'. So 'left' serves!
+    // If the winning team was on 'left', they have now moved to 'right'. So 'right' serves!
+    const nextServingSide: ServingSide = prevWinnerSide === 'right' ? 'left' : 'right';
+    setServingSide(nextServingSide);
+
+    // 6. Court positions for the new set
+    const swappedPositions = swapPositionsAcrossSides(positions);
+    setPositions(swappedPositions);
+
+    // 7. Increment current set number
+    const nextSet = currentSet + 1;
+    setCurrentSet(nextSet);
+
+    // 8. Reset set flags & undo history
     setWinner(null);
+    setShowWinner(false);
     intervalTriggeredRef.current = false;
     deciderSwitchedRef.current = false;
+    setHistory([]);
 
-    // Automatic side change between sets
-    doSwapSides();
+    // 9. Persist the new set to DB at 0 - 0
+    await persistMatch(
+      0, // left
+      0, // right
+      nextSet,
+      newSetsLeft,
+      newSetsRight,
+      nextServingSide,
+      'in_progress',
+      null,
+      swappedPositions
+    );
 
-    if (shouldPromptSideSwitchBetweenSets(currentSet, config)) {
-      setSideSwitchMsg('Геймът приключи. Полетата са разменени за следващия гейм.');
-      setShowSideSwitch(true);
-    }
+    // 10. Start the official 120s BWF break between sets cleanly!
+    setRestTitle(`Почивка между геймове (120s) - Гейм ${currentSet}`);
+    setRestDuration(SET_BREAK_DURATION);
+    setShowRest(true);
   };
 
   const handleResetMatch = () => {
@@ -611,7 +644,7 @@ export default function App() {
   };
 
   // Step 2: Confirm Toss -> Start Game
-  const handleConfirmToss = (tossResult: TossResult, initialPositions: PlayerPositions) => {
+  const handleConfirmToss = async (tossResult: TossResult, initialPositions: PlayerPositions) => {
     if (!pendingSetup) return;
 
     setMatchNumber(pendingSetup.matchNumber);
@@ -635,12 +668,25 @@ export default function App() {
     setCustomConfig(pendingSetup.customConfig);
     setGameType(pendingSetup.gameType);
 
+    // Reset scoring & game state cleanly BEFORE setting toss selections
+    setScoreLeft(0);
+    setScoreRight(0);
+    setCurrentSet(1);
+    setSetsLeft(0);
+    setSetsRight(0);
+    setHistory([]);
+    setSetScores([]);
+    setWinner(null);
+    setMatchOver(false);
+    setShowWinner(false);
+    intervalTriggeredRef.current = false;
+    deciderSwitchedRef.current = false;
+
     // Initial serving side determined by toss
     setServingSide(tossResult.initialServingSide);
     setPositions(initialPositions);
 
     setShowToss(false);
-    handleResetMatch();
     const chosenMatchId = pendingSetup.matchId ? toUUID(pendingSetup.matchId) : generateUUID();
     setMatchId(chosenMatchId);
 
@@ -903,14 +949,6 @@ export default function App() {
       {/* 6. Sync Queue Modal */}
       <SyncQueueModal open={showSyncQueue} onClose={() => setShowSyncQueue(false)} matchId={matchId} />
 
-      {/* 7. Side Switch Prompt Modal */}
-      <SideSwitchPrompt
-        open={showSideSwitch}
-        message={sideSwitchMsg}
-        onConfirm={handleSideSwitchConfirm}
-        onSkip={() => setShowSideSwitch(false)}
-      />
-
       {/* 8. Rest / Interval Overlay */}
       <RestOverlay
         open={showRest}
@@ -974,7 +1012,7 @@ export default function App() {
             {/* Team Left / Top ScoreCard */}
             <ScoreCard
               side="left"
-              teamLabel={t('teamA')}
+              teamLabel={t('leftSide')}
               playerName={playerLeft}
               partnerName={gameType === 'doubles' ? playerLeftPartner : undefined}
               clubName={playerLeftClub}
@@ -1007,7 +1045,7 @@ export default function App() {
             {/* Team Right / Bottom ScoreCard */}
             <ScoreCard
               side="right"
-              teamLabel={t('teamB')}
+              teamLabel={t('rightSide')}
               playerName={playerRight}
               partnerName={gameType === 'doubles' ? playerRightPartner : undefined}
               clubName={playerRightClub}

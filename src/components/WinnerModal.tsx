@@ -240,176 +240,183 @@ export function WinnerModal({
       {/* Top tricolor stripe */}
       <div className="h-[3px] w-full bg-tricolor-horizontal shrink-0" />
 
-      {/* Scrollable centered content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center px-4 py-4 sm:py-6">
-        <div className="w-full max-w-lg flex flex-col text-zinc-100 space-y-3.5">
-          {/* Brand Header Banner */}
-          <div className="flex items-center justify-between border-b border-zinc-800 pb-2.5">
-            <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="NV" className="h-8 object-contain" />
-              <div>
-                <div className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                  {t('appTitle')}
-                </div>
-                <div className="text-xs font-black text-[#6bc33a]">
-                  {lang === 'bg' ? 'Официален резултат на срещата' : 'Official Match Result'}
-                </div>
-              </div>
-            </div>
-            <span className="text-[11px] font-black uppercase bg-zinc-800 text-amber-300 border border-zinc-700 px-2.5 py-1 rounded-lg">
-              {t('courtNum', { court: courtNumber })}
-            </span>
-          </div>
-
-          {eventCategory && (
-            <div className="text-center text-xs font-bold text-zinc-400 uppercase tracking-wider -mt-1">
-              {eventCategory}
-            </div>
-          )}
-
-          {/* Big Official Scoreboard Card */}
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 shadow-xl">
-            <div className="grid grid-cols-5 items-center gap-2 text-center">
-              {/* Team 1 */}
-              <div className="col-span-2 space-y-1">
-                <div className="font-black text-sm sm:text-base text-zinc-100 leading-snug truncate">
-                  {team1FullName}
-                </div>
-                {playerLeftClub && (
-                  <div className="text-[11px] font-black uppercase text-amber-400 truncate">
-                    🏛️ {playerLeftClub}
+      {/* Scrollable centered content - adapts cleanly to both landscape and portrait */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center px-3 sm:px-5 py-3 sm:py-5">
+        <div className="w-full max-w-4xl text-zinc-100 grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 items-stretch">
+          
+          {/* Left Column: Match Details & Big Scoreboard */}
+          <div className="lg:col-span-7 flex flex-col space-y-3">
+            {/* Brand Header Banner */}
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+              <div className="flex items-center gap-2">
+                <img src="/logo.png" alt="NV" className="h-8 object-contain" />
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                    {t('appTitle')}
                   </div>
-                )}
-              </div>
-
-              {/* Sets Score Big */}
-              <div className="col-span-1 flex flex-col items-center justify-center">
-                <div className="text-2xl sm:text-3xl font-black tracking-tight text-white bg-black px-3 py-1 rounded-xl border border-zinc-800 shadow-inner">
-                  <span className={setsLeft > setsRight ? 'text-[#6bc33a]' : 'text-zinc-400'}>
-                    {setsLeft}
-                  </span>
-                  <span className="text-zinc-600 mx-1">:</span>
-                  <span className={setsRight > setsLeft ? 'text-[#e11e24]' : 'text-zinc-400'}>
-                    {setsRight}
-                  </span>
-                </div>
-                <span className="text-[9px] font-black uppercase text-zinc-500 mt-1">
-                  {t('games')}
-                </span>
-              </div>
-
-              {/* Team 2 */}
-              <div className="col-span-2 space-y-1">
-                <div className="font-black text-sm sm:text-base text-zinc-100 leading-snug truncate">
-                  {team2FullName}
-                </div>
-                {playerRightClub && (
-                  <div className="text-[11px] font-black uppercase text-amber-400 truncate">
-                    🏛️ {playerRightClub}
+                  <div className="text-xs font-black text-[#6bc33a]">
+                    {lang === 'bg' ? 'Официален резултат на срещата' : 'Official Match Result'}
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Set scores detail badges */}
-            <div className="mt-4 pt-3 border-t border-zinc-800 flex items-center justify-center gap-2 flex-wrap">
-              <span className="text-[11px] font-bold text-zinc-400">{t('points')}:</span>
-              {allSets.map((s, idx) => (
-                <span
-                  key={idx}
-                  className="rounded-lg bg-black border border-zinc-800 px-2.5 py-1 text-xs font-black text-zinc-200"
-                >
-                  {t('game')} {idx + 1}: <strong className="text-[#6bc33a]">{s.left}</strong>-<strong className="text-[#e11e24]">{s.right}</strong>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Locked Referee Confirmation Section */}
-          <div className="rounded-2xl border border-[#6bc33a]/30 bg-zinc-950 p-3.5 space-y-3 shadow-lg">
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#6bc33a]/15 text-[#6bc33a]">
-                <Lock size={15} />
-              </div>
-              <div>
-                <div className="text-xs font-black uppercase tracking-wider text-[#6bc33a]">
-                  {lang === 'bg' ? 'Потвърждение от Главния съдия' : 'Head Referee Verification'}
-                </div>
-                <div className="text-[11px] text-zinc-400">
-                  {t('refereePinPrompt')}
                 </div>
               </div>
+              <span className="text-[11px] font-black uppercase bg-zinc-800 text-amber-300 border border-zinc-700 px-2.5 py-1 rounded-lg">
+                {t('courtNum', { court: courtNumber })}
+              </span>
             </div>
 
-            <form onSubmit={(e) => { e.preventDefault(); handleVerifyPinAndFinish(); }} className="space-y-2">
-              <div className="flex gap-2">
-                <Input
-                  type="password"
-                  inputMode="numeric"
-                  value={enteredPin}
-                  onChange={(e) => {
-                    setEnteredPin(e.target.value);
-                    setPinError('');
-                  }}
-                  placeholder="PIN (1234)"
-                  maxLength={8}
-                  className="text-center font-bold tracking-widest text-base h-10 bg-black border-zinc-700 text-white"
-                />
-                <Button
-                  type="submit"
-                  variant="default"
-                  className="bg-[#6bc33a] hover:bg-[#56be32] text-black font-black text-xs px-4 h-10 shadow-md shrink-0 cursor-pointer"
-                >
-                  {t('confirm')}
-                </Button>
+            {eventCategory && (
+              <div className="text-center text-xs font-bold text-zinc-400 uppercase tracking-wider -mt-1">
+                {eventCategory}
+              </div>
+            )}
+
+            {/* Big Official Scoreboard Card */}
+            <div className="flex-1 rounded-2xl border border-zinc-800 bg-zinc-950 p-3.5 sm:p-4 shadow-xl flex flex-col justify-between">
+              <div className="grid grid-cols-5 items-center gap-2 text-center">
+                {/* Team 1 */}
+                <div className="col-span-2 space-y-1">
+                  <div className="font-black text-sm sm:text-base text-zinc-100 leading-snug truncate">
+                    {team1FullName}
+                  </div>
+                  {playerLeftClub && (
+                    <div className="text-[11px] font-black uppercase text-amber-400 truncate">
+                      🏛️ {playerLeftClub}
+                    </div>
+                  )}
+                </div>
+
+                {/* Sets Score Big */}
+                <div className="col-span-1 flex flex-col items-center justify-center">
+                  <div className="text-2xl sm:text-3xl font-black tracking-tight text-white bg-black px-3 py-1 rounded-xl border border-zinc-800 shadow-inner">
+                    <span className={setsLeft > setsRight ? 'text-[#6bc33a]' : 'text-zinc-400'}>
+                      {setsLeft}
+                    </span>
+                    <span className="text-zinc-600 mx-1">:</span>
+                    <span className={setsRight > setsLeft ? 'text-[#e11e24]' : 'text-zinc-400'}>
+                      {setsRight}
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black uppercase text-zinc-500 mt-1">
+                    {t('games')}
+                  </span>
+                </div>
+
+                {/* Team 2 */}
+                <div className="col-span-2 space-y-1">
+                  <div className="font-black text-sm sm:text-base text-zinc-100 leading-snug truncate">
+                    {team2FullName}
+                  </div>
+                  {playerRightClub && (
+                    <div className="text-[11px] font-black uppercase text-amber-400 truncate">
+                      🏛️ {playerRightClub}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {pinError && (
-                <p className="text-xs font-black text-red-400 text-center">{pinError}</p>
-              )}
-
-              {/* Quick Touch Keypad for tablet referees */}
-              <div className="grid grid-cols-6 gap-1 pt-1 max-w-[280px] mx-auto">
-                {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'].map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => {
-                      if (item === 'C') setEnteredPin('');
-                      else if (item === '⌫') setEnteredPin((p) => p.slice(0, -1));
-                      else handleDigit(item);
-                    }}
-                    className="h-8 rounded-lg border border-zinc-800 bg-zinc-900 text-xs font-bold text-zinc-200 hover:bg-zinc-800 active:scale-95 transition-all cursor-pointer"
+              {/* Set scores detail badges */}
+              <div className="mt-3.5 pt-3 border-t border-zinc-800 flex items-center justify-center gap-2 flex-wrap">
+                <span className="text-[11px] font-bold text-zinc-400">{t('points')}:</span>
+                {allSets.map((s, idx) => (
+                  <span
+                    key={idx}
+                    className="rounded-lg bg-black border border-zinc-800 px-2.5 py-1 text-xs font-black text-zinc-200"
                   >
-                    {item}
-                  </button>
+                    {t('game')} {idx + 1}: <strong className="text-[#6bc33a]">{s.left}</strong>-<strong className="text-[#e11e24]">{s.right}</strong>
+                  </span>
                 ))}
               </div>
-            </form>
+            </div>
           </div>
 
-          {/* Optional PDF download */}
-          {onDownloadPdf && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="w-full border-zinc-800 text-zinc-300 hover:bg-zinc-900 font-bold text-xs h-9 cursor-pointer"
-              onClick={handleDownload}
-            >
-              {downloaded ? (
-                <>
-                  <CheckCircle2 size={14} className="mr-1.5 text-[#6bc33a]" />
-                  {lang === 'bg' ? 'PDF протоколът е свален!' : 'PDF Scoresheet downloaded!'}
-                </>
-              ) : (
-                <>
-                  <FileDown size={14} className="mr-1.5 text-sky-400" />
-                  {t('downloadPdfScoresheet')}
-                </>
-              )}
-            </Button>
-          )}
+          {/* Right Column: Referee Confirmation & PDF Export */}
+          <div className="lg:col-span-5 flex flex-col space-y-3">
+            {/* Locked Referee Confirmation Section */}
+            <div className="flex-1 rounded-2xl border border-[#6bc33a]/30 bg-zinc-950 p-3.5 space-y-2.5 shadow-lg flex flex-col justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#6bc33a]/15 text-[#6bc33a]">
+                  <Lock size={15} />
+                </div>
+                <div>
+                  <div className="text-xs font-black uppercase tracking-wider text-[#6bc33a]">
+                    {lang === 'bg' ? 'Потвърждение от Главния съдия' : 'Head Referee Verification'}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 leading-tight">
+                    {t('refereePinPrompt')}
+                  </div>
+                </div>
+              </div>
+
+              <form onSubmit={(e) => { e.preventDefault(); handleVerifyPinAndFinish(); }} className="space-y-2">
+                <div className="flex gap-2">
+                  <Input
+                    type="password"
+                    inputMode="numeric"
+                    value={enteredPin}
+                    onChange={(e) => {
+                      setEnteredPin(e.target.value);
+                      setPinError('');
+                    }}
+                    placeholder="PIN (1234)"
+                    maxLength={8}
+                    className="text-center font-bold tracking-widest text-base h-10 bg-black border-zinc-700 text-white"
+                  />
+                  <Button
+                    type="submit"
+                    variant="default"
+                    className="bg-[#6bc33a] hover:bg-[#56be32] text-black font-black text-xs px-4 h-10 shadow-md shrink-0 cursor-pointer"
+                  >
+                    {t('confirm')}
+                  </Button>
+                </div>
+
+                {pinError && (
+                  <p className="text-xs font-black text-red-400 text-center">{pinError}</p>
+                )}
+
+                {/* Quick Touch Keypad for tablet referees */}
+                <div className="grid grid-cols-6 gap-1 pt-1 max-w-[280px] mx-auto">
+                  {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'].map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => {
+                        if (item === 'C') setEnteredPin('');
+                        else if (item === '⌫') setEnteredPin((p) => p.slice(0, -1));
+                        else handleDigit(item);
+                      }}
+                      className="h-8 rounded-lg border border-zinc-800 bg-zinc-900 text-xs font-bold text-zinc-200 hover:bg-zinc-800 active:scale-95 transition-all cursor-pointer"
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </form>
+            </div>
+
+            {/* Optional PDF download */}
+            {onDownloadPdf && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full border-zinc-800 text-zinc-300 hover:bg-zinc-900 font-bold text-xs h-9 cursor-pointer"
+                onClick={handleDownload}
+              >
+                {downloaded ? (
+                  <>
+                    <CheckCircle2 size={14} className="mr-1.5 text-[#6bc33a]" />
+                    {lang === 'bg' ? 'PDF протоколът е свален!' : 'PDF Scoresheet downloaded!'}
+                  </>
+                ) : (
+                  <>
+                    <FileDown size={14} className="mr-1.5 text-sky-400" />
+                    {t('downloadPdfScoresheet')}
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

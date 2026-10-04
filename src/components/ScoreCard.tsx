@@ -5,7 +5,7 @@ import type { ServingSide, GameType, CourtPosition } from '@/types';
 
 interface ScoreCardProps {
   side: ServingSide;
-  teamLabel: string;
+  teamLabel?: string;
   playerName: string;
   partnerName?: string;
   clubName?: string;
@@ -87,16 +87,13 @@ export function ScoreCard({
       <div className={cn("flex items-center justify-between gap-2 border-b border-zinc-800/80", isPortrait ? "pb-1.5" : "pb-2.5")}>
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
           <span className={cn('text-xs font-black uppercase tracking-widest', themeStyles.accentText)}>
-            {teamLabel}
+            {teamLabel || (side === 'left' ? t('leftSide') : t('rightSide'))}
           </span>
           {clubName && (
             <span className="text-[10px] sm:text-[11px] font-black uppercase px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-700 text-amber-300 shadow-sm truncate max-w-[150px] sm:max-w-none">
               🏛️ {clubName}
             </span>
           )}
-          <span className="text-[11px] text-zinc-500 font-medium hidden sm:inline">
-            ({side === 'left' ? t('leftSide') : t('rightSide')})
-          </span>
         </div>
 
         {/* Serving / Receiving Badge (Single, prominent, un-duplicated) */}
