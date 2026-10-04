@@ -1,4 +1,4 @@
-const CACHE_NAME = 'badminton-kiosk-v2';
+const CACHE_NAME = 'badminton-kiosk-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -27,7 +27,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: Cache-First for static assets, Network-First with cache fallback for everything else
+// Fetch: Network-First for HTML/Navigation, Cache-First for static assets
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests and http/https schemes
   if (event.request.method !== 'GET') return;
@@ -38,6 +38,24 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/')) return; // live tournament data must never be cached
   if (url.pathname.includes('/@vite/') || url.pathname.includes('/@fs/')) return;
+
+  const isNavigation = event.request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html';
+
+  if (isNavigation) {
+    // Network-First for HTML: ensures latest code is always loaded
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {

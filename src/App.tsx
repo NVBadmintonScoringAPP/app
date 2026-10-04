@@ -817,7 +817,9 @@ export default function App() {
     scoreRight >= config.pointsToWin - 1 &&
     Math.abs(scoreLeft - scoreRight) < 2;
 
-  const winnerName = winner === 'left' ? playerLeft : playerRight;
+  const teamLeftFullName = playerLeft + (playerLeftPartner ? ` & ${playerLeftPartner}` : '');
+  const teamRightFullName = playerRight + (playerRightPartner ? ` & ${playerRightPartner}` : '');
+  const winnerName = winner === 'left' ? teamLeftFullName : teamRightFullName;
 
   return (
     <div className="flex h-screen flex-col bg-black text-white select-none overflow-hidden">
