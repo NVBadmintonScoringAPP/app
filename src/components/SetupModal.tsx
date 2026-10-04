@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import type { MatchFormat, GameType, ServingSide, CustomFormatConfig, Tournament
 
 interface SetupModalProps {
   open: boolean;
+  initialMode?: 'tournament' | 'manual';
   onClose: () => void;
   onStart: (config: SetupConfig) => void;
 }
@@ -30,18 +31,28 @@ export interface SetupConfig {
   customConfig?: CustomFormatConfig;
 }
 
-export function SetupModal({ open, onClose, onStart }: SetupModalProps) {
+export function SetupModal({ open, initialMode, onClose, onStart }: SetupModalProps) {
   const { lang, t } = useI18n();
   const tournamentService = getTournamentService();
   const [setupMode, setSetupMode] = useState<'tournament' | 'manual'>(() => {
+    if (initialMode) return initialMode;
     return tournamentService.getIsManualMode() ? 'manual' : 'tournament';
   });
+
+  // Sync mode when modal opens
+  useEffect(() => {
+    if (open && initialMode) {
+      setSetupMode(initialMode);
+    }
+  }, [open, initialMode]);
 
   const [matchNumber, setMatchNumber] = useState('Match 1');
   const [playerLeft, setPlayerLeft] = useState('Player 1');
   const [playerRight, setPlayerRight] = useState('Player 2');
   const [leftPartner, setLeftPartner] = useState('');
   const [rightPartner, setRightPartner] = useState('');
+  const [leftClub, setLeftClub] = useState('');
+  const [rightClub, setRightClub] = useState('');
   const [court, setCourt] = useState('1');
   const [format, setFormat] = useState<MatchFormat>('3x21');
   const [gameType, setGameType] = useState<GameType>('singles');
@@ -72,8 +83,8 @@ export function SetupModal({ open, onClose, onStart }: SetupModalProps) {
       playerRight: playerRight || 'Player 2',
       playerLeftPartner: leftPartner,
       playerRightPartner: rightPartner,
-      playerLeftClub: '',
-      playerRightClub: '',
+      playerLeftClub: leftClub,
+      playerRightClub: rightClub,
       courtNumber: court || '1',
       format,
       gameType,
@@ -309,8 +320,8 @@ export function SetupModal({ open, onClose, onStart }: SetupModalProps) {
             )}
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-sky-950/60 bg-sky-950/20 p-3">
-                <label className="mb-1 block text-xs font-black uppercase tracking-wider text-sky-400">
+              <div className="rounded-xl border border-sky-950/60 bg-sky-950/20 p-3 space-y-2">
+                <label className="block text-xs font-black uppercase tracking-wider text-sky-400">
                   {gameType === 'singles' ? 'Играч 1 (Player 1)' : 'Отбор 1 (Team 1)'}
                 </label>
                 <Input
@@ -320,15 +331,20 @@ export function SetupModal({ open, onClose, onStart }: SetupModalProps) {
                 />
                 {gameType === 'doubles' && (
                   <Input
-                    className="mt-2"
                     value={leftPartner}
                     onChange={(e) => setLeftPartner(e.target.value)}
                     placeholder="Партньор 1"
                   />
                 )}
+                <Input
+                  value={leftClub}
+                  onChange={(e) => setLeftClub(e.target.value)}
+                  placeholder={t('player1ClubPlaceholder')}
+                  className="text-xs"
+                />
               </div>
-              <div className="rounded-xl border border-emerald-950/60 bg-emerald-950/20 p-3">
-                <label className="mb-1 block text-xs font-black uppercase tracking-wider text-emerald-400">
+              <div className="rounded-xl border border-emerald-950/60 bg-emerald-950/20 p-3 space-y-2">
+                <label className="block text-xs font-black uppercase tracking-wider text-emerald-400">
                   {gameType === 'singles' ? 'Играч 2 (Player 2)' : 'Отбор 2 (Team 2)'}
                 </label>
                 <Input
@@ -338,19 +354,23 @@ export function SetupModal({ open, onClose, onStart }: SetupModalProps) {
                 />
                 {gameType === 'doubles' && (
                   <Input
-                    className="mt-2"
                     value={rightPartner}
                     onChange={(e) => setRightPartner(e.target.value)}
                     placeholder="Партньор 2"
                   />
                 )}
+                <Input
+                  value={rightClub}
+                  onChange={(e) => setRightClub(e.target.value)}
+                  placeholder={t('player2ClubPlaceholder')}
+                  className="text-xs"
+                />
               </div>
             </div>
 
             <Button
-              variant="accent"
               size="lg"
-              className="w-full text-slate-950 font-black mt-2 text-base shadow-lg"
+              className="w-full h-11 bg-[#6bc33a] hover:bg-[#56be32] active:bg-[#439527] text-black font-black text-sm shadow-lg shadow-[#6bc33a]/25 rounded-xl transition-all active:scale-[0.99]"
               onClick={handleStartManual}
             >
               Продължи към жребий (BWF Toss) →

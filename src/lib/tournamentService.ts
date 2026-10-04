@@ -18,6 +18,7 @@ class TournamentService {
   private assignedCourt: string = '1';
   private assignedLocation: string = '';
   private isManualMode: boolean = false;
+  private isTournamentAuthorized: boolean = false;
   private listeners: Set<() => void> = new Set();
 
   constructor() {
@@ -66,6 +67,9 @@ class TournamentService {
 
       const savedManual = localStorage.getItem('badminton_is_manual_mode');
       if (savedManual) this.isManualMode = savedManual === 'true';
+
+      const savedAuth = localStorage.getItem('badminton_tournament_authorized');
+      if (savedAuth) this.isTournamentAuthorized = savedAuth === 'true';
 
       const savedCompleted = localStorage.getItem('badminton_completed_match_ids');
       if (savedCompleted) {
@@ -164,6 +168,30 @@ class TournamentService {
     this.notify();
   }
 
+  public isAuthorized(): boolean {
+    return this.isTournamentAuthorized && Boolean(this.tournamentName || (this.tournamentInfo && this.tournamentInfo.totalMatches > 0)) && !this.isManualMode;
+  }
+
+  public authorizeTournamentForTablet(court?: string, location?: string): void {
+    if (court) this.setAssignedCourt(court);
+    if (location) this.setAssignedLocation(location);
+    this.isTournamentAuthorized = true;
+    this.isManualMode = false;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('badminton_tournament_authorized', 'true');
+      localStorage.setItem('badminton_is_manual_mode', 'false');
+    }
+    this.notify();
+  }
+
+  public deauthorizeTournament(): void {
+    this.isTournamentAuthorized = false;
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('badminton_tournament_authorized');
+    }
+    this.notify();
+  }
+
   public getAllMatches(): TournamentMatch[] {
     return [...this.matches];
   }
@@ -257,6 +285,7 @@ class TournamentService {
     this.tournamentInfo = null;
     this.tournamentUrl = '';
     this.isManualMode = false;
+    this.isTournamentAuthorized = false;
     if (typeof window !== 'undefined') {
       localStorage.removeItem('badminton_tournament_matches');
       localStorage.removeItem('badminton_completed_match_ids');
@@ -264,6 +293,7 @@ class TournamentService {
       localStorage.removeItem('badminton_tournament_name');
       localStorage.removeItem('badminton_tournament_info');
       localStorage.removeItem('badminton_is_manual_mode');
+      localStorage.removeItem('badminton_tournament_authorized');
     }
     this.notify();
   }

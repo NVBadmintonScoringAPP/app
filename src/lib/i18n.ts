@@ -307,6 +307,40 @@ export const translations = {
     en: 'Court {court} · Access restricted to Head Referee',
   },
   unlockScoreboardBtn: { bg: 'Отключи таблото', en: 'Unlock Scoreboard' },
+
+  // Role Selection & Authorization
+  optionRegularUser: { bg: 'Обикновен потребител', en: 'Regular User' },
+  optionRegularUserDesc: {
+    bg: 'Ръчно въвеждане: играчи, корт, жребий и свободно точкуване',
+    en: 'Manual mode: players, court, toss and free scoring',
+  },
+  optionAdmin: { bg: 'Администратор (Главен съдия)', en: 'Administrator (Chief Referee)' },
+  optionAdminDesc: {
+    bg: 'Настройка на турнир, корт и разрешаване на таблета',
+    en: 'Tournament setup, court assignment and tablet authorization',
+  },
+  authorizeTabletForTournamentBtn: {
+    bg: 'Разреши използването на таблета за този турнир',
+    en: 'Authorize Tablet for this Tournament',
+  },
+  authorizeTabletSuccess: {
+    bg: 'Таблетът е успешно разрешен и активиран за този турнир!',
+    en: 'Tablet successfully authorized and activated for this tournament!',
+  },
+  tournamentModeCourtMatches: {
+    bg: 'Срещи за Корт {court} (Турнирна програма)',
+    en: 'Matches for Court {court} (Tournament Schedule)',
+  },
+  switchToManualModeBtn: {
+    bg: 'Обикновен потребител (Ръчен режим)',
+    en: 'Regular User (Manual Mode)',
+  },
+  adminSettingsShort: {
+    bg: 'Администратор (Настройки / PIN)',
+    en: 'Administrator (Settings / PIN)',
+  },
+  player1ClubPlaceholder: { bg: 'Клуб / Град (Играч 1)', en: 'Club / City (Player 1)' },
+  player2ClubPlaceholder: { bg: 'Клуб / Град (Играч 2)', en: 'Club / City (Player 2)' },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

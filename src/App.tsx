@@ -150,6 +150,7 @@ export default function App() {
   // Modals state
   const [showWelcome, setShowWelcome] = useState(true);
   const [showSetup, setShowSetup] = useState(false);
+  const [setupInitialMode, setSetupInitialMode] = useState<'tournament' | 'manual'>('manual');
   const [showToss, setShowToss] = useState(false);
   const [pendingSetup, setPendingSetup] = useState<SetupConfig | null>(null);
 
@@ -721,10 +722,12 @@ export default function App() {
         isManualMode={tournamentService.getIsManualMode()}
         isOnline={isOnline}
         onStartMatchSelection={() => {
+          setSetupInitialMode('tournament');
           setShowWelcome(false);
           setShowSetup(true);
         }}
         onStartManualMatch={() => {
+          setSetupInitialMode('manual');
           setShowWelcome(false);
           setShowSetup(true);
         }}
@@ -743,6 +746,7 @@ export default function App() {
       {/* 1. Setup Dialog */}
       <SetupModal
         open={showSetup}
+        initialMode={setupInitialMode}
         onClose={() => {
           setShowSetup(false);
           setShowWelcome(true);

@@ -3,6 +3,7 @@ import { Play, Globe, MapPin, Calendar, Users, Building, Trophy, ShieldCheck, Al
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/lib/i18n';
+import { getTournamentService } from '@/lib/tournamentService';
 import { cn } from '@/lib/utils';
 import type { TournamentInfo } from '@/types';
 
@@ -33,12 +34,14 @@ export function WelcomeSplash({
 }: WelcomeSplashProps) {
   const { lang, isTranslationEnabled, setLanguage, t } = useI18n();
   const [showStatusDetails, setShowStatusDetails] = useState(false);
+  const tournamentService = getTournamentService();
 
   if (!open) return null;
 
-  // Real tournament title - strictly displayed in full, never truncated
+  // Tournament is active only if authorized by admin and has matches
+  const isAuthorized = tournamentService.isAuthorized();
   const displayTitle = tournamentName?.trim() || tournamentInfo?.name?.trim() || '';
-  const hasActiveTournament = !isManualMode && Boolean(displayTitle && tournamentInfo && tournamentInfo.totalMatches > 0);
+  const hasActiveTournament = isAuthorized && !isManualMode && Boolean(displayTitle && tournamentInfo && tournamentInfo.totalMatches > 0);
 
   const venueTitle = assignedLocation || tournamentInfo?.venueName || (tournamentInfo?.hallNames && tournamentInfo.hallNames[0]) || '';
   const locationCity = tournamentInfo?.city || tournamentInfo?.location || '';
@@ -313,38 +316,87 @@ export function WelcomeSplash({
           </div>
         )}
 
-        {/* Action Buttons */}
+        {/* Action Buttons: 2 Clear Options */}
         <div className="w-full space-y-2 pt-0.5">
           {hasActiveTournament ? (
-            <Button
-              size="lg"
-              variant="default"
-              className="w-full h-10 sm:h-11 bg-[#6bc33a] hover:bg-[#56be32] active:bg-[#439527] text-black font-black text-xs sm:text-sm shadow-lg shadow-[#6bc33a]/20 transition-all rounded-xl active:scale-[0.99] flex items-center justify-center gap-2"
-              onClick={onStartMatchSelection}
-            >
-              <Play size={15} className="fill-black stroke-black" />
-              {t('selectMatchBtn')}
-            </Button>
-          ) : (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
+              {/* Option 1 in Tournament Mode: Start official tournament matches for assigned court */}
               <Button
                 size="lg"
                 variant="default"
-                className="w-full h-10 sm:h-11 bg-[#6bc33a] hover:bg-[#56be32] active:bg-[#439527] text-black font-black text-xs sm:text-sm shadow-lg shadow-[#6bc33a]/20 transition-all rounded-xl active:scale-[0.99] flex items-center justify-center gap-2"
-                onClick={onStartManualMatch || onStartMatchSelection}
+                className="w-full h-10 sm:h-11 bg-[#6bc33a] hover:bg-[#56be32] active:bg-[#439527] text-black font-black text-xs sm:text-sm shadow-lg shadow-[#6bc33a]/20 transition-all rounded-xl active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
+                onClick={onStartMatchSelection}
               >
-                <Play size={15} className="fill-black stroke-black" />
-                {t('startManualBtn')}
+                <Play size={15} className="fill-black stroke-black shrink-0" />
+                <span>{t('tournamentModeCourtMatches', { court: assignedCourt })}</span>
               </Button>
+
+              {/* Option 2 in Tournament Mode: Regular User (Manual Mode) */}
               <Button
                 size="sm"
                 variant="outline"
-                className="w-full h-8 sm:h-9 border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 hover:border-zinc-700 text-[11px] sm:text-xs font-bold text-zinc-300 rounded-xl transition-colors flex items-center justify-center gap-2"
-                onClick={onOpenAdmin}
+                className="w-full h-8 sm:h-8.5 border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 hover:border-zinc-700 text-[11px] sm:text-xs font-bold text-zinc-300 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                onClick={onStartManualMatch || onStartMatchSelection}
               >
-                <Settings size={13} className="text-[#6bc33a]" />
-                {t('newTournamentBtn')}
+                <Users size={13} className="text-zinc-400 shrink-0" />
+                <span>{t('switchToManualModeBtn')}</span>
               </Button>
+
+              {/* Option 3 in Tournament Mode: Administrator Settings Link */}
+              <button
+                type="button"
+                onClick={onOpenAdmin}
+                className="w-full text-center text-[10px] font-bold text-zinc-500 hover:text-zinc-300 flex items-center justify-center gap-1.5 pt-0.5 transition-colors cursor-pointer"
+              >
+                <Settings size={11} className="text-[#6bc33a]" />
+                <span>{t('adminSettingsShort')}</span>
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {/* OPTION 1: REGULAR USER (Manual match entry, toss, court, scoring) */}
+              <button
+                type="button"
+                onClick={onStartManualMatch || onStartMatchSelection}
+                className="w-full h-11 sm:h-12 bg-[#6bc33a] hover:bg-[#56be32] active:bg-[#439527] text-black rounded-xl transition-all shadow-lg shadow-[#6bc33a]/20 active:scale-[0.99] flex items-center justify-between px-3 cursor-pointer group"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-black/15 flex items-center justify-center shrink-0">
+                    <Users size={16} className="text-black" />
+                  </div>
+                  <div className="text-left min-w-0">
+                    <div className="font-black text-xs sm:text-sm leading-tight text-black">
+                      {t('optionRegularUser')}
+                    </div>
+                    <div className="text-[10px] text-black/75 font-bold leading-tight truncate">
+                      {t('optionRegularUserDesc')}
+                    </div>
+                  </div>
+                </div>
+                <Play size={14} className="fill-black stroke-black shrink-0 ml-2" />
+              </button>
+
+              {/* OPTION 2: ADMINISTRATOR (Tournament setup, court assignment, authorization) */}
+              <button
+                type="button"
+                onClick={onOpenAdmin}
+                className="w-full h-11 sm:h-12 border border-zinc-800 bg-zinc-900/90 hover:bg-zinc-850 hover:border-zinc-700 text-zinc-100 rounded-xl transition-all active:scale-[0.99] flex items-center justify-between px-3 cursor-pointer group"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-black/50 border border-zinc-800 flex items-center justify-center shrink-0 group-hover:border-[#6bc33a]/40 transition-colors">
+                    <ShieldCheck size={16} className="text-[#6bc33a]" />
+                  </div>
+                  <div className="text-left min-w-0">
+                    <div className="font-black text-xs sm:text-sm leading-tight text-zinc-100 group-hover:text-white transition-colors">
+                      {t('optionAdmin')}
+                    </div>
+                    <div className="text-[10px] text-zinc-400 font-bold leading-tight truncate">
+                      {t('optionAdminDesc')}
+                    </div>
+                  </div>
+                </div>
+                <Settings size={14} className="text-zinc-500 group-hover:text-[#6bc33a] transition-colors shrink-0 ml-2" />
+              </button>
             </div>
           )}
         </div>

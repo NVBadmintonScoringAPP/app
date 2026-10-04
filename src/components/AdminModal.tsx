@@ -73,6 +73,7 @@ export function AdminModal({
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatusMsg, setSyncStatusMsg] = useState('');
   const [showConfirmFinishTournament, setShowConfirmFinishTournament] = useState(false);
+  const [authorizationSuccess, setAuthorizationSuccess] = useState(false);
 
   useEffect(() => {
     return tournamentService.subscribe(() => {
@@ -160,6 +161,21 @@ export function AdminModal({
     if (onCourtChanged) {
       onCourtChanged(courtNum, loc);
     }
+  };
+
+  const handleAuthorizeTournamentForTablet = () => {
+    if (!tournamentName && !tournamentInfo) {
+      setSyncStatusMsg('Моля първо въведете линк и синхронизирайте турнира преди да разрешите таблета.');
+      return;
+    }
+    handleSaveCourtSelection(assignedCourt, assignedLocation);
+    tournamentService.authorizeTournamentForTablet(assignedCourt, assignedLocation);
+    setAuthorizationSuccess(true);
+    setSyncStatusMsg(`✓ Таблетът е успешно разрешен за турнир „${tournamentName || tournamentInfo?.name}“, Корт ${assignedCourt}!`);
+    setTimeout(() => {
+      setAuthorizationSuccess(false);
+      handleClose();
+    }, 700);
   };
 
   const handleFinishTournamentConfirm = () => {
@@ -483,6 +499,26 @@ export function AdminModal({
                         </div>
                       )}
                     </div>
+
+                    {/* Primary Action: Authorize & Activate Tablet for Tournament */}
+                    {Boolean(tournamentName || tournamentInfo) && (
+                      <div className="pt-2">
+                        <Button
+                          type="button"
+                          size="lg"
+                          onClick={handleAuthorizeTournamentForTablet}
+                          className={cn(
+                            'w-full h-11 font-black text-xs sm:text-sm rounded-xl transition-all shadow-lg active:scale-[0.99] flex items-center justify-center gap-2',
+                            authorizationSuccess
+                              ? 'bg-emerald-500 text-white shadow-emerald-500/30'
+                              : 'bg-[#6bc33a] hover:bg-[#56be32] active:bg-[#439527] text-black shadow-[#6bc33a]/25'
+                          )}
+                        >
+                          <ShieldCheck size={17} className={authorizationSuccess ? 'text-white' : 'text-black'} />
+                          {authorizationSuccess ? t('authorizeTabletSuccess') : t('authorizeTabletForTournamentBtn')}
+                        </Button>
+                      </div>
+                    )}
 
                     {/* Quick Finish Tournament Button directly in Setup Tab */}
                     {Boolean(tournamentName || tournamentInfo) && (
