@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Play, Globe } from 'lucide-react';
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +33,7 @@ export interface SetupConfig {
 }
 
 export function SetupModal({ open, initialMode, onClose, onStart }: SetupModalProps) {
-  const { lang, t } = useI18n();
+  const { lang, isTranslationEnabled, setLanguage, t } = useI18n();
   const tournamentService = getTournamentService();
   const [setupMode, setSetupMode] = useState<'tournament' | 'manual'>(() => {
     if (initialMode) return initialMode;
@@ -112,269 +113,303 @@ export function SetupModal({ open, initialMode, onClose, onStart }: SetupModalPr
 
   const toggleClass = (active: boolean) =>
     cn(
-      'flex-1 rounded-xl border py-2 text-center text-xs font-bold transition-all',
+      'flex-1 rounded-xl border py-2 text-center text-xs font-black transition-all cursor-pointer',
       active
-        ? 'border-amber-400 bg-amber-400 text-slate-950 shadow-md'
-        : 'border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800'
+        ? 'border-[#6bc33a] bg-[#6bc33a] text-black shadow-md shadow-[#6bc33a]/25'
+        : 'border-zinc-800 bg-zinc-900/90 text-zinc-300 hover:bg-zinc-850 hover:border-zinc-700'
+    );
+
+  const customToggleClass = (active: boolean) =>
+    cn(
+      'flex-1 py-1 text-xs rounded-lg border font-black transition-all cursor-pointer text-center',
+      active
+        ? 'border-[#6bc33a] bg-[#6bc33a] text-black shadow-sm'
+        : 'border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800'
     );
 
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      title=""
-      className="max-w-2xl max-h-[92vh] overflow-y-auto"
+      className="w-[94vw] sm:w-[90vw] md:w-[500px] max-w-[520px] border-zinc-800 bg-black/95 backdrop-blur-2xl !p-3 sm:!p-3.5 max-h-[96vh] overflow-y-auto overflow-x-hidden flex flex-col justify-start shadow-2xl"
     >
-      <div className="space-y-4">
-        {/* Brand Header Banner with Official Logo */}
-        <div className="flex flex-col items-center justify-center pt-0 pb-2 border-b border-slate-800/80 relative">
-          {onClose && (
+      <div className="w-full flex flex-col items-center space-y-2 select-none">
+        {/* Top Header Row: Back button (Left), Manual mode badge (Center), Language toggle (Right) */}
+        <div className="w-full flex items-center justify-between z-20">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-7 flex items-center gap-1.5 px-2.5 rounded-lg border border-zinc-800 bg-zinc-900/90 text-zinc-300 hover:text-white hover:border-zinc-700 text-[11px] font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            title={lang === 'bg' ? 'Обратно към начален екран' : 'Back to Welcome Screen'}
+          >
+            <span>←</span>
+            <span>{lang === 'bg' ? 'Начало' : 'Back'}</span>
+          </button>
+
+          <div className="h-7 flex items-center gap-1.5 px-2.5 rounded-lg border border-[#6bc33a]/30 bg-[#6bc33a]/10 text-[#6bc33a] text-[10px] font-black shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#6bc33a] animate-pulse" />
+            <span>{setupMode === 'tournament' ? 'Турнирен режим' : (lang === 'bg' ? 'Ръчен режим' : 'Manual Mode')}</span>
+          </div>
+
+          {isTranslationEnabled ? (
             <button
               type="button"
-              onClick={onClose}
-              className="absolute left-0 top-1 text-xs font-bold text-zinc-400 hover:text-white flex items-center gap-1 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-lg"
-              title={lang === 'bg' ? 'Обратно към начален екран' : 'Back to Welcome Screen'}
+              onClick={() => setLanguage(lang === 'bg' ? 'en' : 'bg')}
+              className="h-7 w-7 rounded-lg border border-zinc-800 bg-zinc-900/90 text-zinc-400 hover:text-white hover:border-zinc-700 flex items-center justify-center transition-all shadow-sm active:scale-90 cursor-pointer"
+              title={lang === 'bg' ? 'Switch interface to English' : 'Превключи интерфейса на Български'}
             >
-              ← {lang === 'bg' ? 'Начален екран' : 'Welcome'}
+              <Globe size={14} className="text-zinc-400 hover:text-[#6bc33a]" />
             </button>
+          ) : (
+            <div className="h-7 w-7" />
           )}
-          <img
-            src="/logo.png"
-            alt="Национална Верига Бадминтон"
-            className="h-12 sm:h-14 object-contain drop-shadow-md mb-1"
-          />
-          {/* Bulgarian Tricolor: Left-to-Right: White, Green (#6bc33a), Red (#e11e24) */}
-          <div className="flex items-center justify-center gap-1.5 my-1" title="Български трикольор: Бяло, Зелено, Червено">
-            <span className="h-1.5 w-7 rounded-full bg-white shadow-sm ring-1 ring-white/30" />
-            <span className="h-1.5 w-7 rounded-full bg-[#6bc33a] shadow-sm ring-1 ring-emerald-400/30" />
-            <span className="h-1.5 w-7 rounded-full bg-[#e11e24] shadow-sm ring-1 ring-red-500/30" />
+        </div>
+
+        {/* Brand Card: IDENTICAL to WelcomeSplash */}
+        <div className="w-full rounded-xl border border-zinc-800 bg-zinc-950/90 p-2 sm:p-2.5 shadow-xl relative overflow-hidden flex flex-col items-center justify-center">
+          {/* Bulgarian Tricolor Top Accent Stripe: White -> Green -> Red */}
+          <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-tricolor-horizontal" />
+
+          {/* Official NV Logo */}
+          <div className="w-full flex items-center justify-center pt-0.5">
+            <img
+              src="/logo.png"
+              alt="Национална Верига Бадминтон"
+              className="w-full max-h-[64px] sm:max-h-[74px] object-contain drop-shadow-2xl"
+            />
           </div>
-          <span className="text-[11px] font-black uppercase tracking-wider text-zinc-300">
-            {t('appSubtitle')}
-          </span>
+
+          {/* Official Subtitle inside card */}
+          <div className="w-full pt-1 mt-0.5 border-t border-zinc-800/80">
+            <h2 className="text-[10px] sm:text-[11px] font-black text-[#6bc33a] uppercase tracking-widest text-center">
+              {t('appSubtitle')}
+            </h2>
+          </div>
         </div>
 
-        {/* Top Mode Tabs: Tournament Software vs Manual Fallback */}
-        <div className="grid grid-cols-2 gap-2 rounded-2xl border border-zinc-800 bg-zinc-950/90 p-1.5 shadow-inner">
-          <button
-            type="button"
-            onClick={() => setSetupMode('tournament')}
-            className={cn(
-              'flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-black transition-all',
-              setupMode === 'tournament'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/50'
-                : 'text-zinc-400 hover:text-zinc-200'
-            )}
-          >
-            <span>🏆 Tournament Software</span>
-            <span className="text-[10px] bg-black/60 text-emerald-300 px-1.5 py-0.5 rounded font-bold">
-              {lang === 'bg' ? 'Автоматичен' : 'Auto'}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setSetupMode('manual')}
-            className={cn(
-              'flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-black transition-all',
-              setupMode === 'manual'
-                ? 'bg-slate-800 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200'
-            )}
-          >
-            <span>✍️ Ръчен режим</span>
-            <span className="text-[10px] bg-slate-950/60 text-slate-300 px-1.5 py-0.5 rounded font-bold">
-              Fallback
-            </span>
-          </button>
-        </div>
-
+        {/* In Tournament Mode, render TournamentMatchSelector */}
         {setupMode === 'tournament' ? (
-          <TournamentMatchSelector
-            currentCourt={court}
-            onSelectMatch={handleSelectTournamentMatch}
-            onSwitchToManual={() => setSetupMode('manual')}
-          />
+          <div className="w-full">
+            <TournamentMatchSelector
+              currentCourt={court}
+              onSelectMatch={handleSelectTournamentMatch}
+              onSwitchToManual={() => setSetupMode('manual')}
+            />
+          </div>
         ) : (
-          <div className="space-y-4 pt-1">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Номер на мач
-                </label>
-                <Input
-                  value={matchNumber}
-                  onChange={(e) => setMatchNumber(e.target.value)}
-                  placeholder="Match 1"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Корт №
-                </label>
-                <Input value={court} onChange={(e) => setCourt(e.target.value)} placeholder="1" />
-              </div>
-            </div>
+          /* PURE MANUAL ENTRY FORM - NO TOURNAMENT SOFTWARE TABS */
+          <div className="w-full space-y-2 pt-0.5 text-left">
+            {/* 1. Match Settings: Court, Number, Game Type, Format */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-950/90 p-2.5 space-y-2 shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-tricolor-horizontal" />
 
-            <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-400">
-                Дисциплина (Game Type)
-              </label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  className={toggleClass(gameType === 'singles')}
-                  onClick={() => setGameType('singles')}
-                >
-                  Единично (Singles)
-                </button>
-                <button
-                  type="button"
-                  className={toggleClass(gameType === 'doubles')}
-                  onClick={() => setGameType('doubles')}
-                >
-                  Двойки (Doubles)
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-400">
-                Формат на точкуване (BWF Scoring Format)
-              </label>
-              <div className="flex gap-2">
-                {(['3x21', '3x15', 'custom'] as MatchFormat[]).map((f) => (
-                  <button
-                    type="button"
-                    key={f}
-                    className={toggleClass(format === f)}
-                    onClick={() => setFormat(f)}
-                  >
-                    {f === '3x21' ? 'BWF 3 × 21' : f === '3x15' ? 'BWF 3 × 15' : 'Custom'}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Custom Configuration Section */}
-            {format === 'custom' && (
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
-                <span className="block text-xs font-bold uppercase tracking-wider text-amber-400">
-                  Параметри на персонализирания формат
-                </span>
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <label className="text-[11px] font-medium text-slate-400 block mb-1">Точки</label>
-                    <div className="flex gap-1">
-                      {[11, 15, 21, 31].map((pts) => (
-                        <button
-                          key={pts}
-                          type="button"
-                          onClick={() => {
-                            setCustomPoints(pts);
-                            setCustomCap(pts + (pts === 31 ? 4 : 9));
-                          }}
-                          className={cn(
-                            'flex-1 py-1 text-xs rounded border font-bold',
-                            customPoints === pts
-                              ? 'border-amber-400 bg-amber-400 text-slate-950'
-                              : 'border-slate-800 bg-slate-900 text-slate-300'
-                          )}
-                        >
-                          {pts}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[11px] font-medium text-slate-400 block mb-1">Геймове</label>
-                    <div className="flex gap-1">
-                      {[1, 3].map((sets) => (
-                        <button
-                          key={sets}
-                          type="button"
-                          onClick={() => setCustomBestOf(sets)}
-                          className={cn(
-                            'flex-1 py-1 text-xs rounded border font-bold',
-                            customBestOf === sets
-                              ? 'border-amber-400 bg-amber-400 text-slate-950'
-                              : 'border-slate-800 bg-slate-900 text-slate-300'
-                          )}
-                        >
-                          {sets}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[11px] font-medium text-slate-400 block mb-1">Таван (Cap)</label>
-                    <Input
-                      type="number"
-                      value={customCap}
-                      onChange={(e) => setCustomCap(Number(e.target.value))}
-                      className="py-1 h-8 text-xs"
-                    />
-                  </div>
+              <div className="grid grid-cols-2 gap-2 pt-0.5">
+                <div>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    {lang === 'bg' ? 'Номер на мач' : 'Match Number'}
+                  </label>
+                  <Input
+                    value={matchNumber}
+                    onChange={(e) => setMatchNumber(e.target.value)}
+                    placeholder="Match 1"
+                    className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    {lang === 'bg' ? 'Корт №' : 'Court #'}
+                  </label>
+                  <Input
+                    value={court}
+                    onChange={(e) => setCourt(e.target.value)}
+                    placeholder="1"
+                    className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
+                  />
                 </div>
               </div>
-            )}
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-sky-950/60 bg-sky-950/20 p-3 space-y-2">
-                <label className="block text-xs font-black uppercase tracking-wider text-sky-400">
-                  {gameType === 'singles' ? 'Играч 1 (Player 1)' : 'Отбор 1 (Team 1)'}
+              {/* Discipline Selection */}
+              <div>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                  {lang === 'bg' ? 'Дисциплина' : 'Discipline'}
                 </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className={toggleClass(gameType === 'singles')}
+                    onClick={() => setGameType('singles')}
+                  >
+                    {lang === 'bg' ? 'Единично (Singles)' : 'Singles'}
+                  </button>
+                  <button
+                    type="button"
+                    className={toggleClass(gameType === 'doubles')}
+                    onClick={() => setGameType('doubles')}
+                  >
+                    {lang === 'bg' ? 'Двойки (Doubles)' : 'Doubles'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Format Selection */}
+              <div>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                  {lang === 'bg' ? 'Формат на геймовете' : 'Scoring Format'}
+                </label>
+                <div className="flex gap-2">
+                  {(['3x21', '3x15', 'custom'] as MatchFormat[]).map((f) => (
+                    <button
+                      type="button"
+                      key={f}
+                      className={toggleClass(format === f)}
+                      onClick={() => setFormat(f)}
+                    >
+                      {f === '3x21' ? 'BWF 3 × 21' : f === '3x15' ? 'BWF 3 × 15' : 'Персонализиран'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom Format Options */}
+              {format === 'custom' && (
+                <div className="rounded-lg border border-[#6bc33a]/30 bg-black/50 p-2 space-y-1.5">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-[#6bc33a]">
+                    {lang === 'bg' ? 'Параметри на формата' : 'Format parameters'}
+                  </span>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-zinc-400 block mb-1">
+                        {lang === 'bg' ? 'Точки' : 'Points'}
+                      </label>
+                      <div className="flex gap-1">
+                        {[11, 15, 21, 31].map((pts) => (
+                          <button
+                            key={pts}
+                            type="button"
+                            onClick={() => {
+                              setCustomPoints(pts);
+                              setCustomCap(pts + (pts === 31 ? 4 : 9));
+                            }}
+                            className={customToggleClass(customPoints === pts)}
+                          >
+                            {pts}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-zinc-400 block mb-1">
+                        {lang === 'bg' ? 'Геймове' : 'Games'}
+                      </label>
+                      <div className="flex gap-1">
+                        {[1, 3].map((sets) => (
+                          <button
+                            key={sets}
+                            type="button"
+                            onClick={() => setCustomBestOf(sets)}
+                            className={customToggleClass(customBestOf === sets)}
+                          >
+                            {sets}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-zinc-400 block mb-1">
+                        {lang === 'bg' ? 'Таван (Cap)' : 'Cap'}
+                      </label>
+                      <Input
+                        type="number"
+                        value={customCap}
+                        onChange={(e) => setCustomCap(Number(e.target.value))}
+                        className="py-1 h-7 text-xs bg-black/60 border-zinc-800 text-white font-bold"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 2. Team 1 (Left / NV Green) & Team 2 (Right / NV Red) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {/* Team 1 Card: Official NV Green Accent */}
+              <div className="rounded-xl border border-[#6bc33a]/40 bg-zinc-950/90 p-2.5 space-y-1.5 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#6bc33a]" />
+                <div className="flex items-center justify-between pb-0.5">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[#6bc33a]">
+                    {gameType === 'singles'
+                      ? (lang === 'bg' ? 'Играч 1 (Лява страна)' : 'Player 1 (Left Side)')
+                      : (lang === 'bg' ? 'Отбор 1 (Лява страна)' : 'Team 1 (Left Side)')}
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-[#6bc33a]" />
+                </div>
                 <Input
                   value={playerLeft}
                   onChange={(e) => setPlayerLeft(e.target.value)}
-                  placeholder="Име на състезател 1"
+                  placeholder={lang === 'bg' ? 'Име на състезател 1' : 'Player 1 Name'}
+                  className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
                 />
                 {gameType === 'doubles' && (
                   <Input
                     value={leftPartner}
                     onChange={(e) => setLeftPartner(e.target.value)}
-                    placeholder="Партньор 1"
+                    placeholder={lang === 'bg' ? 'Партньор 1' : 'Partner 1 Name'}
+                    className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
                   />
                 )}
                 <Input
                   value={leftClub}
                   onChange={(e) => setLeftClub(e.target.value)}
                   placeholder={t('player1ClubPlaceholder')}
-                  className="text-xs"
+                  className="h-8 text-xs bg-black/60 border-zinc-800 text-zinc-300"
                 />
               </div>
-              <div className="rounded-xl border border-emerald-950/60 bg-emerald-950/20 p-3 space-y-2">
-                <label className="block text-xs font-black uppercase tracking-wider text-emerald-400">
-                  {gameType === 'singles' ? 'Играч 2 (Player 2)' : 'Отбор 2 (Team 2)'}
-                </label>
+
+              {/* Team 2 Card: Official NV Red Accent */}
+              <div className="rounded-xl border border-[#e11e24]/40 bg-zinc-950/90 p-2.5 space-y-1.5 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#e11e24]" />
+                <div className="flex items-center justify-between pb-0.5">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[#e11e24]">
+                    {gameType === 'singles'
+                      ? (lang === 'bg' ? 'Играч 2 (Дясна страна)' : 'Player 2 (Right Side)')
+                      : (lang === 'bg' ? 'Отбор 2 (Дясна страна)' : 'Team 2 (Right Side)')}
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-[#e11e24]" />
+                </div>
                 <Input
                   value={playerRight}
                   onChange={(e) => setPlayerRight(e.target.value)}
-                  placeholder="Име на състезател 2"
+                  placeholder={lang === 'bg' ? 'Име на състезател 2' : 'Player 2 Name'}
+                  className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
                 />
                 {gameType === 'doubles' && (
                   <Input
                     value={rightPartner}
                     onChange={(e) => setRightPartner(e.target.value)}
-                    placeholder="Партньор 2"
+                    placeholder={lang === 'bg' ? 'Партньор 2' : 'Partner 2 Name'}
+                    className="h-8 text-xs bg-black/60 border-zinc-800 text-white font-bold"
                   />
                 )}
                 <Input
                   value={rightClub}
                   onChange={(e) => setRightClub(e.target.value)}
                   placeholder={t('player2ClubPlaceholder')}
-                  className="text-xs"
+                  className="h-8 text-xs bg-black/60 border-zinc-800 text-zinc-300"
                 />
               </div>
             </div>
 
-            <Button
-              size="lg"
-              className="w-full h-11 bg-[#6bc33a] hover:bg-[#56be32] active:bg-[#439527] text-black font-black text-sm shadow-lg shadow-[#6bc33a]/25 rounded-xl transition-all active:scale-[0.99]"
-              onClick={handleStartManual}
-            >
-              Продължи към жребий (BWF Toss) →
-            </Button>
+            {/* 3. Action Button: Proceed to BWF Toss */}
+            <div className="pt-1">
+              <Button
+                size="lg"
+                className="w-full h-10 sm:h-11 bg-[#6bc33a] hover:bg-[#56be32] active:bg-[#439527] text-black font-black text-xs sm:text-sm shadow-lg shadow-[#6bc33a]/25 rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
+                onClick={handleStartManual}
+              >
+                <Play size={15} className="fill-black stroke-black" />
+                <span>{lang === 'bg' ? 'Продължи към жребий (BWF Toss) →' : 'Proceed to Toss (BWF Toss) →'}</span>
+              </Button>
+            </div>
           </div>
         )}
       </div>
