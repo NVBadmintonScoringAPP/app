@@ -79,13 +79,6 @@ export function Header({
           </div>
         </div>
 
-        {/* Bulgarian Tricolor Indicator: White, Green (#6bc33a), Red (#e11e24) */}
-        <div className="flex flex-col gap-0.5 justify-center py-0.5" title="Български трикольор: Бяло, Зелено, Червено">
-          <span className="h-1.5 w-3.5 rounded-full bg-white shadow-sm" />
-          <span className="h-1.5 w-3.5 rounded-full bg-[#6bc33a] shadow-sm" />
-          <span className="h-1.5 w-3.5 rounded-full bg-[#e11e24] shadow-sm" />
-        </div>
-
         {/* Court Badge (single place for court number, no duplicate "Корт 1" next to it) */}
         <div className="flex items-center gap-1.5 rounded-xl border border-[#6bc33a]/40 bg-[#6bc33a]/10 px-2.5 py-1">
           <div className="text-[10px] font-black uppercase tracking-widest text-[#6bc33a]">{t('courtUpper')}</div>

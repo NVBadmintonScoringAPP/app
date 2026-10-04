@@ -1,4 +1,4 @@
-const CACHE_NAME = 'badminton-kiosk-v3';
+const CACHE_NAME = 'badminton-kiosk-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

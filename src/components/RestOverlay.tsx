@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Play, Pause, FastForward, Bell, Volume2, VolumeX, Timer, X } from 'lucide-react';
+import { Play, Pause, FastForward, Bell, Volume2, VolumeX, Timer, X, Globe } from 'lucide-react';
 import { getAudioService } from '@/lib/audio';
 import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -15,7 +15,7 @@ interface RestOverlayProps {
 }
 
 export function RestOverlay({ open, duration, title, courtNumber, onDismiss }: RestOverlayProps) {
-  const { lang, t } = useI18n();
+  const { lang, isTranslationEnabled, setLanguage, t } = useI18n();
   const [remaining, setRemaining] = useState(duration);
   const [isPaused, setIsPaused] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -165,6 +165,16 @@ export function RestOverlay({ open, duration, title, courtNumber, onDismiss }: R
                     <span className="text-[9px] font-black uppercase tracking-wider text-[#6bc33a]">{t('courtUpper')}</span>
                     <span className="text-xs font-black text-white">{courtNumber}</span>
                   </div>
+                )}
+                {isTranslationEnabled && (
+                  <button
+                    type="button"
+                    onClick={() => setLanguage(lang === 'bg' ? 'en' : 'bg')}
+                    className="h-7 w-7 rounded-lg border border-zinc-800 bg-zinc-900/90 text-zinc-400 hover:text-white hover:border-zinc-700 flex items-center justify-center transition-all shadow-sm active:scale-90 cursor-pointer"
+                    title={lang === 'bg' ? 'Switch interface to English' : 'Превключи интерфейса на Български'}
+                  >
+                    <Globe size={14} className="text-zinc-400 hover:text-[#6bc33a]" />
+                  </button>
                 )}
                 <button
                   type="button"

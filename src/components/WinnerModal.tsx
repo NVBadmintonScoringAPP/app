@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Trophy, FileDown, CheckCircle2, Lock } from 'lucide-react';
+import { Trophy, FileDown, CheckCircle2, Lock, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useI18n } from '@/lib/i18n';
@@ -51,7 +51,7 @@ export function WinnerModal({
   onConfirmMatchFinished,
   onDownloadPdf,
 }: WinnerModalProps) {
-  const { lang, t } = useI18n();
+  const { lang, setLanguage, isTranslationEnabled, t } = useI18n();
   const [step, setStep] = useState<'prompt' | 'locked_summary'>('prompt');
   const [enteredPin, setEnteredPin] = useState('');
   const [pinError, setPinError] = useState('');
@@ -132,6 +132,16 @@ export function WinnerModal({
                       <span className="text-[9px] font-black uppercase tracking-wider text-[#6bc33a]">{t('courtUpper')}</span>
                       <span className="text-xs font-black text-white">{courtNumber}</span>
                     </div>
+                  )}
+                  {isTranslationEnabled && (
+                    <button
+                      type="button"
+                      onClick={() => setLanguage(lang === 'bg' ? 'en' : 'bg')}
+                      className="h-7 w-7 rounded-lg border border-zinc-800 bg-zinc-900/90 text-zinc-400 hover:text-white hover:border-zinc-700 flex items-center justify-center transition-all shadow-sm active:scale-90 cursor-pointer"
+                      title={lang === 'bg' ? 'Switch interface to English' : 'Превключи интерфейса на Български'}
+                    >
+                      <Globe size={14} className="text-zinc-400 hover:text-[#6bc33a]" />
+                    </button>
                   )}
                 </div>
               </div>
@@ -360,12 +370,24 @@ export function WinnerModal({
                   </div>
                 </div>
               </div>
-              <span className="text-[11px] font-black uppercase bg-[#6bc33a]/10 text-[#6bc33a] border border-[#6bc33a]/40 px-2.5 py-1 rounded-lg">
-                {t('courtNum', { court: courtNumber })}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-black uppercase bg-[#6bc33a]/10 text-[#6bc33a] border border-[#6bc33a]/40 px-2.5 py-1 rounded-lg">
+                  {t('courtNum', { court: courtNumber })}
+                </span>
+                {isTranslationEnabled && (
+                  <button
+                    type="button"
+                    onClick={() => setLanguage(lang === 'bg' ? 'en' : 'bg')}
+                    className="h-7 w-7 rounded-lg border border-zinc-800 bg-zinc-900/90 text-zinc-400 hover:text-white hover:border-zinc-700 flex items-center justify-center transition-all shadow-sm active:scale-90 cursor-pointer"
+                    title={lang === 'bg' ? 'Switch interface to English' : 'Превключи интерфейса на Български'}
+                  >
+                    <Globe size={14} className="text-zinc-400 hover:text-[#6bc33a]" />
+                  </button>
+                )}
+              </div>
             </div>
 
-            {eventCategory && (
+            {eventCategory && eventCategory !== courtNumber && eventCategory !== `КОРТ ${courtNumber}` && (
               <div className="text-center text-xs font-bold text-zinc-400 uppercase tracking-wider -mt-1">
                 {eventCategory}
               </div>
@@ -458,14 +480,14 @@ export function WinnerModal({
                       setEnteredPin(e.target.value);
                       setPinError('');
                     }}
-                    placeholder="PIN (1234)"
+                    placeholder="••••"
                     maxLength={8}
-                    className="text-center font-bold tracking-widest text-base h-10 bg-black border-zinc-700 text-white"
+                    className="text-center font-bold tracking-widest text-lg h-10 bg-black border-zinc-700 text-white placeholder:text-zinc-600 focus:border-[#6bc33a]"
                   />
                   <Button
                     type="submit"
                     variant="default"
-                    className="bg-[#6bc33a] hover:bg-[#56be32] text-black font-black text-xs px-4 h-10 shadow-md shrink-0 cursor-pointer"
+                    className="bg-[#6bc33a] hover:bg-[#56be32] text-black font-black text-xs px-4 h-10 shadow-md shrink-0 cursor-pointer rounded-xl"
                   >
                     {t('confirm')}
                   </Button>
@@ -500,19 +522,21 @@ export function WinnerModal({
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
-                className="w-full border-zinc-800 text-zinc-300 hover:bg-zinc-900 font-bold text-xs h-9 cursor-pointer"
+                size="default"
+                className="w-full border-zinc-800 bg-zinc-950/80 text-zinc-200 hover:bg-zinc-900 hover:border-[#6bc33a]/50 font-black text-xs h-10 rounded-xl shadow-lg cursor-pointer flex items-center justify-center gap-2"
                 onClick={handleDownload}
               >
                 {downloaded ? (
                   <>
-                    <CheckCircle2 size={14} className="mr-1.5 text-[#6bc33a]" />
-                    {lang === 'bg' ? 'PDF протоколът е свален!' : 'PDF Scoresheet downloaded!'}
+                    <CheckCircle2 size={15} className="text-[#6bc33a]" />
+                    <span className="text-[#6bc33a]">
+                      {lang === 'bg' ? 'Официалният PDF протокол е генериран!' : 'PDF Scoresheet generated!'}
+                    </span>
                   </>
                 ) : (
                   <>
-                    <FileDown size={14} className="mr-1.5 text-[#6bc33a]" />
-                    {t('downloadPdfScoresheet')}
+                    <FileDown size={15} className="text-[#6bc33a]" />
+                    <span>{t('downloadPdfScoresheet')}</span>
                   </>
                 )}
               </Button>
