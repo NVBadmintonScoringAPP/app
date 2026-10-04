@@ -70,7 +70,7 @@ function useIsPortrait(): boolean {
 }
 
 export default function App() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const tournamentService = getTournamentService();
   const [tournamentName, setTournamentName] = useState(() => tournamentService.getTournamentName());
   const [tournamentInfo, setTournamentInfo] = useState(() => tournamentService.getTournamentInfo());
@@ -434,12 +434,20 @@ export default function App() {
           deciderSwitchedRef.current = true;
           intervalTriggeredRef.current = true;
           doSwapSides();
-          setRestTitle(`Почивка на ${config.sideSwitchAt}-та точка (60s) • Смяна на полетата`);
+          setRestTitle(
+            lang === 'bg'
+              ? `Интервал на ${config.sideSwitchAt}-та точка (60s) • Смяна на полетата в ${currentSet}-ти гейм`
+              : `${config.sideSwitchAt}-point Interval (60s) • Change Ends in Game ${currentSet}`
+          );
           setRestDuration(INTERVAL_DURATION);
           setShowRest(true);
         } else if (triggerInterval) {
           intervalTriggeredRef.current = true;
-          setRestTitle(`Почивка на ${config.intervalAt}-та точка (60s)`);
+          setRestTitle(
+            lang === 'bg'
+              ? `Интервал на ${config.intervalAt}-та точка (60s) • Гейм ${currentSet}`
+              : `${config.intervalAt}-point Interval (60s) • Game ${currentSet}`
+          );
           setRestDuration(INTERVAL_DURATION);
           setShowRest(true);
         }
@@ -614,7 +622,15 @@ export default function App() {
     );
 
     // 10. Start the official 120s BWF break between sets cleanly!
-    setRestTitle(`Почивка между геймове (120s) - Гейм ${currentSet}`);
+    const prevSetNum = currentSet;
+    const nextSetNum = nextSet;
+    const prevOrdinal = prevSetNum === 1 ? '1-ви' : prevSetNum === 2 ? '2-ри' : `${prevSetNum}-ти`;
+    const nextOrdinal = nextSetNum === 2 ? '2-ри' : nextSetNum === 3 ? '3-ти' : `${nextSetNum}-ти`;
+    setRestTitle(
+      lang === 'bg'
+        ? `Почивка между ${prevOrdinal} и ${nextOrdinal} гейм (120s) • Размяна на полетата`
+        : `Interval between Game ${prevSetNum} & ${nextSetNum} (120s) • Change Ends`
+    );
     setRestDuration(SET_BREAK_DURATION);
     setShowRest(true);
   };
