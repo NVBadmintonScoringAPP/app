@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Header } from '@/components/Header';
 import { ScoreCard } from '@/components/ScoreCard';
 import { ControlsBar } from '@/components/ControlsBar';
-import { RestOverlay } from '@/components/RestOverlay';
 import { SetupModal, type SetupConfig } from '@/components/SetupModal';
 import { TossModal } from '@/components/TossModal';
 import { WinnerModal } from '@/components/WinnerModal';
@@ -27,7 +26,6 @@ import {
   getCurrentServerAndReceiver,
   calculateRallyOutcome,
   shouldSwitchSidesInDecider,
-  shouldTriggerInterval,
   shouldPromptSideSwitchBetweenSets,
   swapPositionsAcrossSides,
 } from '@/lib/bwf';
@@ -46,8 +44,6 @@ import { cn } from '@/lib/utils';
 import { generateUUID, toUUID } from '@/lib/uuid';
 
 const DEFAULT_PIN = '1234';
-const INTERVAL_DURATION = 60;
-const SET_BREAK_DURATION = 120;
 
 function useIsPortrait(): boolean {
   const [isPortrait, setIsPortrait] = useState(() => {
@@ -142,30 +138,7 @@ export default function App() {
 
   // Screen WakeLock (Screen Always On for Kiosk Scoreboard)
   const { isActive: isWakeLockActive, toggleWakeLock } = useWakeLock(true);
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
 
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
-
-  const handleInstallPwa = async () => {
-    if (!installPrompt) return;
-    try {
-      installPrompt.prompt();
-      const choiceResult = await installPrompt.userChoice;
-      if (choiceResult.outcome === 'accepted') {
-        setInstallPrompt(null);
-      }
-    } catch (err) {
-      console.warn('Install prompt error:', err);
-    }
-  };
 
   // Modals state
   const [showWelcome, setShowWelcome] = useState(true);
@@ -175,9 +148,6 @@ export default function App() {
   const [pendingSetup, setPendingSetup] = useState<SetupConfig | null>(null);
 
   const [showWinner, setShowWinner] = useState(false);
-  const [showRest, setShowRest] = useState(false);
-  const [restTitle, setRestTitle] = useState('Interval');
-  const [restDuration, setRestDuration] = useState(INTERVAL_DURATION);
   const [showSideSwitch, setShowSideSwitch] = useState(false);
   const [sideSwitchMsg, setSideSwitchMsg] = useState('');
   const [showCards, setShowCards] = useState(false);
@@ -232,7 +202,6 @@ export default function App() {
 
   const [isMuted, setIsMuted] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
-  const [pendingCount, setPendingCount] = useState(0);
 
   const audio = getAudioService();
   const sync = getSyncService();
@@ -242,9 +211,8 @@ export default function App() {
   const deciderSwitchedRef = useRef(false);
 
   useEffect(() => {
-    const unsub = sync.subscribe((online, count) => {
+    const unsub = sync.subscribe((online) => {
       setIsOnline(online);
-      setPendingCount(count);
     });
     return unsub;
   }, [sync]);
@@ -422,7 +390,8 @@ export default function App() {
           setShowWinner(true);
           audio.playSetWinSound();
 
-          // 120s break between sets as per BWF Law 16.2.1
+          // Automatic rest overlay disabled per user request
+          /*
           if (shouldPromptSideSwitchBetweenSets(currentSet, config)) {
             setTimeout(() => {
               setRestTitle(`Почивка между геймове (120s) - Гейм ${currentSet}`);
@@ -430,6 +399,7 @@ export default function App() {
               setShowRest(true);
             }, 1200);
           }
+          */
         }
 
         await logPointEvent(rallyWinner, newLeft, newRight, serverName, receiverName);
@@ -445,7 +415,8 @@ export default function App() {
           newPositions
         );
       } else {
-        // Check for 60s interval at 11 pts (or 8 for 3x15)
+        // Automatic 60s interval overlay at 11 pts disabled per user request
+        /*
         const triggerInterval = shouldTriggerInterval(
           scoreLeft,
           scoreRight,
@@ -461,6 +432,7 @@ export default function App() {
           setRestDuration(INTERVAL_DURATION);
           setShowRest(true);
         }
+        */
 
         // Check for deciding set side change at 11 pts (or 8 for 3x15)
         const triggerDeciderSwitch = shouldSwitchSidesInDecider(
@@ -759,12 +731,7 @@ export default function App() {
     generatePdfScoresheet(currentMatch, pointLogs, setScores);
   };
 
-  const handleIntervalManual = () => {
-    audio.resumeOnUserAction();
-    setRestTitle('Почивка (Interval)');
-    setRestDuration(INTERVAL_DURATION);
-    setShowRest(true);
-  };
+
 
   const isDeuceActive =
     scoreLeft >= config.pointsToWin - 1 &&
@@ -911,13 +878,7 @@ export default function App() {
         onSkip={() => setShowSideSwitch(false)}
       />
 
-      {/* 8. Rest / Interval Overlay */}
-      <RestOverlay
-        open={showRest}
-        duration={restDuration}
-        title={restTitle}
-        onDismiss={() => setShowRest(false)}
-      />
+
 
       {/* Header */}
       <Header
@@ -928,16 +889,9 @@ export default function App() {
         setsLeft={setsLeft}
         setsRight={setsRight}
         format={format}
-        isOnline={isOnline}
-        pendingCount={pendingCount}
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
         onAdminPress={() => setShowAdmin(true)}
-        onLockKiosk={() => setIsKioskLocked(true)}
-        wakeLockActive={isWakeLockActive}
-        onToggleWakeLock={toggleWakeLock}
-        canInstallPwa={!!installPrompt}
-        onInstallPwa={handleInstallPwa}
       />
 
       {/* Deuce Notification Banner */}
@@ -1025,11 +979,7 @@ export default function App() {
       <ControlsBar
         onUndo={handleUndo}
         onSwap={handleManualSwapSides}
-        onCards={() => setShowCards(true)}
-        onInterval={handleIntervalManual}
         onNewMatch={handleNewMatch}
-        onSyncQueue={() => setShowSyncQueue(true)}
-        pendingCount={pendingCount}
         canUndo={history.length > 0}
       />
     </div>
