@@ -499,7 +499,7 @@ export function SetupModal({ open, initialMode, onClose, onStart }: SetupModalPr
                 onClick={handleStartManual}
               >
                 <Play size={15} className="fill-black stroke-black" />
-                <span>{lang === 'bg' ? 'Продължи към жребий (BWF Toss) →' : 'Proceed to Toss (BWF Toss) →'}</span>
+                <span>{lang === 'bg' ? 'Продължи към жребий →' : 'Proceed to Toss →'}</span>
               </Button>
             </div>
           </div>
