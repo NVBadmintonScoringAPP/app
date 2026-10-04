@@ -306,7 +306,7 @@ export function WinnerModal({
             </div>
           </div>
 
-          <div className="space-y-2">
+          <form onSubmit={(e) => { e.preventDefault(); handleVerifyPinAndFinish(); }} className="space-y-2">
             <div className="flex gap-2">
               <Input
                 type="password"
@@ -351,7 +351,7 @@ export function WinnerModal({
                 </button>
               ))}
             </div>
-          </div>
+          </form>
         </div>
 
         {/* Optional PDF download */}

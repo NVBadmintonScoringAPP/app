@@ -225,20 +225,21 @@ export function AdminModal({
             Въведете Администраторски PIN код за достъп до турнирните настройки
           </p>
 
-          <Input
-            className="mt-4 text-center tracking-widest text-xl font-bold h-12 bg-slate-950 border-slate-700 text-white w-48"
-            type="password"
-            inputMode="numeric"
-            value={enteredPin}
-            onChange={(e) => {
-              setEnteredPin(e.target.value);
-              setError('');
-            }}
-            placeholder="••••"
-            maxLength={8}
-            autoFocus
-            onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
-          />
+          <form onSubmit={(e) => { e.preventDefault(); handleVerify(); }} className="flex justify-center w-full">
+            <Input
+              className="mt-4 text-center tracking-widest text-xl font-bold h-12 bg-slate-950 border-slate-700 text-white w-48"
+              type="password"
+              inputMode="numeric"
+              value={enteredPin}
+              onChange={(e) => {
+                setEnteredPin(e.target.value);
+                setError('');
+              }}
+              placeholder="••••"
+              maxLength={8}
+              autoFocus
+            />
+          </form>
 
           {error && <p className="mt-2 text-xs font-bold text-red-400">{error}</p>}
 
@@ -752,32 +753,34 @@ export function AdminModal({
                   <span>{t('changePinSection')}</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">Нов PIN</label>
-                    <Input
-                      type="password"
-                      inputMode="numeric"
-                      value={newPin}
-                      onChange={(e) => setNewPin(e.target.value)}
-                      placeholder="Нови 4 цифри"
-                      maxLength={6}
-                      className="text-xs h-9 bg-slate-950 border-slate-700 text-white"
-                    />
+                <form onSubmit={(e) => { e.preventDefault(); handleChangePinSubmit(); }}>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[11px] text-slate-400 block mb-1">Нов PIN</label>
+                      <Input
+                        type="password"
+                        inputMode="numeric"
+                        value={newPin}
+                        onChange={(e) => setNewPin(e.target.value)}
+                        placeholder="Нови 4 цифри"
+                        maxLength={6}
+                        className="text-xs h-9 bg-slate-950 border-slate-700 text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-400 block mb-1">Потвърди нов PIN</label>
+                      <Input
+                        type="password"
+                        inputMode="numeric"
+                        value={newPinConfirm}
+                        onChange={(e) => setNewPinConfirm(e.target.value)}
+                        placeholder="Повтори PIN"
+                        maxLength={6}
+                        className="text-xs h-9 bg-slate-950 border-slate-700 text-white"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">Потвърди нов PIN</label>
-                    <Input
-                      type="password"
-                      inputMode="numeric"
-                      value={newPinConfirm}
-                      onChange={(e) => setNewPinConfirm(e.target.value)}
-                      placeholder="Повтори PIN"
-                      maxLength={6}
-                      className="text-xs h-9 bg-slate-950 border-slate-700 text-white"
-                    />
-                  </div>
-                </div>
+                </form>
 
                 {error && <p className="text-xs font-bold text-red-400">{error}</p>}
                 {pinChangeSuccess && (

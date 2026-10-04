@@ -6,6 +6,7 @@ import {
   removeFromSyncQueue,
   getPendingSyncCount,
   saveLocalMatch,
+  getLocalMatch,
   addPointLog,
   addCard,
 } from './db';
@@ -141,6 +142,12 @@ class SyncService {
 
     if (this.online) {
       try {
+        // Ensure match exists in Supabase first to satisfy foreign key constraint
+        const localMatch = await getLocalMatch(safeMatchId);
+        if (localMatch) {
+          await this.saveMatch(localMatch);
+        }
+
         const { error } = await supabase.from('point_logs').insert({
           match_id: safeMatchId,
           timestamp: log.timestamp,
@@ -153,9 +160,25 @@ class SyncService {
         });
 
         if (error) {
-          console.warn('[Sync] Supabase logPoint warning:', error.message);
-          if (!isFatalClientError(error)) {
-            await this.queueAction(safeMatchId, 'ADD_POINT', { ...sanitizedLog });
+          if (error.code === '23503' || error.message?.includes('foreign key')) {
+            if (localMatch) {
+              await this.saveMatch(localMatch);
+              await supabase.from('point_logs').insert({
+                match_id: safeMatchId,
+                timestamp: log.timestamp,
+                set_number: log.setNumber,
+                score_left: log.scoreLeft,
+                score_right: log.scoreRight,
+                server: log.server,
+                receiver: log.receiver,
+                scored_by: log.scoredBy,
+              });
+            }
+          } else {
+            console.warn('[Sync] Supabase logPoint warning:', error.message);
+            if (!isFatalClientError(error)) {
+              await this.queueAction(safeMatchId, 'ADD_POINT', { ...sanitizedLog });
+            }
           }
         }
       } catch (err) {

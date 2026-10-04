@@ -409,7 +409,6 @@ export default function App() {
           }
         }
 
-        await logPointEvent(rallyWinner, newLeft, newRight, serverName, receiverName);
         await persistMatch(
           newLeft,
           newRight,
@@ -421,6 +420,7 @@ export default function App() {
           isMatchFinished ? setWinnerSide : null,
           newPositions
         );
+        await logPointEvent(rallyWinner, newLeft, newRight, serverName, receiverName);
       } else {
         // Check for 60s interval at 11 pts (or 8 for 3x15)
         const triggerInterval = shouldTriggerInterval(
@@ -458,7 +458,6 @@ export default function App() {
           setShowSideSwitch(true);
         }
 
-        await logPointEvent(rallyWinner, newLeft, newRight, serverName, receiverName);
         await persistMatch(
           newLeft,
           newRight,
@@ -470,6 +469,7 @@ export default function App() {
           null,
           newPositions
         );
+        await logPointEvent(rallyWinner, newLeft, newRight, serverName, receiverName);
       }
     },
     [
@@ -643,6 +643,32 @@ export default function App() {
     handleResetMatch();
     const chosenMatchId = pendingSetup.matchId ? toUUID(pendingSetup.matchId) : generateUUID();
     setMatchId(chosenMatchId);
+
+    // Persist initial match to DB immediately to satisfy foreign key constraint on point_logs
+    const initialMatch: Match = {
+      id: chosenMatchId,
+      matchNumber: pendingSetup.matchNumber,
+      playerLeftName: tossResult.leftTeam.name,
+      playerRightName: tossResult.rightTeam.name,
+      playerLeftPartner: tossResult.leftTeam.partner || undefined,
+      playerRightPartner: tossResult.rightTeam.partner || undefined,
+      scoreLeft: 0,
+      scoreRight: 0,
+      currentSet: 1,
+      setsLeft: 0,
+      setsRight: 0,
+      servingSide: tossResult.initialServingSide,
+      status: 'in_progress',
+      winner: null,
+      format: pendingSetup.format,
+      customConfig: pendingSetup.customConfig,
+      gameType: pendingSetup.gameType,
+      courtNumber: pendingSetup.courtNumber,
+      syncStatus: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    sync.saveMatch(initialMatch);
   };
 
   const handleToggleMute = () => {
