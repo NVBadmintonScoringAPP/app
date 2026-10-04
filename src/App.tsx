@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Header } from '@/components/Header';
 import { ScoreCard } from '@/components/ScoreCard';
 import { ControlsBar } from '@/components/ControlsBar';
+import { RestOverlay } from '@/components/RestOverlay';
 import { SetupModal, type SetupConfig } from '@/components/SetupModal';
 import { TossModal } from '@/components/TossModal';
 import { WinnerModal } from '@/components/WinnerModal';
@@ -26,6 +27,7 @@ import {
   getCurrentServerAndReceiver,
   calculateRallyOutcome,
   shouldSwitchSidesInDecider,
+  shouldTriggerInterval,
   shouldPromptSideSwitchBetweenSets,
   swapPositionsAcrossSides,
 } from '@/lib/bwf';
@@ -44,6 +46,8 @@ import { cn } from '@/lib/utils';
 import { generateUUID, toUUID } from '@/lib/uuid';
 
 const DEFAULT_PIN = '1234';
+const INTERVAL_DURATION = 60;
+const SET_BREAK_DURATION = 120;
 
 function useIsPortrait(): boolean {
   const [isPortrait, setIsPortrait] = useState(() => {
@@ -148,6 +152,9 @@ export default function App() {
   const [pendingSetup, setPendingSetup] = useState<SetupConfig | null>(null);
 
   const [showWinner, setShowWinner] = useState(false);
+  const [showRest, setShowRest] = useState(false);
+  const [restTitle, setRestTitle] = useState('Interval');
+  const [restDuration, setRestDuration] = useState(INTERVAL_DURATION);
   const [showSideSwitch, setShowSideSwitch] = useState(false);
   const [sideSwitchMsg, setSideSwitchMsg] = useState('');
   const [showCards, setShowCards] = useState(false);
@@ -390,8 +397,7 @@ export default function App() {
           setShowWinner(true);
           audio.playSetWinSound();
 
-          // Automatic rest overlay disabled per user request
-          /*
+          // 120s break between sets as per BWF Law 16.2.1
           if (shouldPromptSideSwitchBetweenSets(currentSet, config)) {
             setTimeout(() => {
               setRestTitle(`Почивка между геймове (120s) - Гейм ${currentSet}`);
@@ -399,7 +405,6 @@ export default function App() {
               setShowRest(true);
             }, 1200);
           }
-          */
         }
 
         await logPointEvent(rallyWinner, newLeft, newRight, serverName, receiverName);
@@ -415,8 +420,7 @@ export default function App() {
           newPositions
         );
       } else {
-        // Automatic 60s interval overlay at 11 pts disabled per user request
-        /*
+        // Check for 60s interval at 11 pts (or 8 for 3x15)
         const triggerInterval = shouldTriggerInterval(
           scoreLeft,
           scoreRight,
@@ -432,7 +436,6 @@ export default function App() {
           setRestDuration(INTERVAL_DURATION);
           setShowRest(true);
         }
-        */
 
         // Check for deciding set side change at 11 pts (or 8 for 3x15)
         const triggerDeciderSwitch = shouldSwitchSidesInDecider(
@@ -876,6 +879,14 @@ export default function App() {
         message={sideSwitchMsg}
         onConfirm={handleSideSwitchConfirm}
         onSkip={() => setShowSideSwitch(false)}
+      />
+
+      {/* 8. Rest / Interval Overlay */}
+      <RestOverlay
+        open={showRest}
+        duration={restDuration}
+        title={restTitle}
+        onDismiss={() => setShowRest(false)}
       />
 
 

@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { RefreshCw } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import type { ServingSide, GameType, CourtPosition } from '@/types';
 
@@ -13,12 +12,12 @@ interface ScoreCardProps {
   score: number;
   isServing: boolean;
   isReceiving?: boolean;
-  activeRallyCourt: CourtPosition;
+  activeRallyCourt?: CourtPosition;
   activeServerName?: string;
   activeReceiverName?: string;
   rightCourtPlayer?: string;
   leftCourtPlayer?: string;
-  gameType: GameType;
+  gameType?: GameType;
   colorTheme: 'green' | 'red' | 'blue';
   isPortrait?: boolean;
   onScore: () => void;
@@ -34,16 +33,9 @@ export function ScoreCard({
   score,
   isServing,
   isReceiving,
-  activeRallyCourt,
-  activeServerName,
-  activeReceiverName,
-  rightCourtPlayer,
-  leftCourtPlayer,
-  gameType,
   colorTheme,
   isPortrait = false,
   onScore,
-  onSwapTeamCourts,
 }: ScoreCardProps) {
   const { t } = useI18n();
   const touchActive = useRef(false);
@@ -127,100 +119,14 @@ export function ScoreCard({
         </div>
       </div>
 
-      {/* 2. Player Information / Service Court Zone */}
-      <div className={cn("rounded-xl border border-zinc-850 bg-zinc-900/60", isPortrait ? "my-1 p-1.5 sm:p-2" : "my-2 p-2 sm:p-2.5")}>
-        {gameType === 'singles' ? (
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-base sm:text-lg md:text-xl font-black text-white">{playerName}</span>
-              </div>
-              <p className="text-[11px] sm:text-xs text-zinc-400 mt-0.5">
-                {isServing ? `${t('service')}: ` : `${t('receiving')}: `}
-                <strong className={cn(
-                  'font-bold',
-                  isServing ? themeStyles.accentText : 'text-sky-400'
-                )}>
-                  {activeRallyCourt === 'right' ? t('rightCourtLabel') : t('leftCourtLabel')}
-                </strong>
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-400 pb-1 border-b border-zinc-800">
-              <span>{t('serviceCourt')} ({t('doubles')})</span>
-              {onSwapTeamCourts && (
-                <button
-                  type="button"
-                  onClick={onSwapTeamCourts}
-                  className="flex items-center gap-1 text-[10px] text-amber-400 hover:text-amber-300 transition-colors p-0.5 cursor-pointer"
-                  title={t('swapPositions')}
-                >
-                  <RefreshCw className="h-3 w-3" />
-                  <span>{t('swapPositions')}</span>
-                </button>
-              )}
-            </div>
-
-            {/* Doubles grid: Right court (Even) and Left court (Odd) */}
-            <div className="grid grid-cols-2 gap-1.5">
-              {/* Right Court */}
-              <div
-                className={cn(
-                  'rounded-lg border p-1.5 transition-all',
-                  activeRallyCourt === 'right'
-                    ? isServing
-                      ? 'border-[#6bc33a]/80 bg-[#6bc33a]/15 shadow-sm'
-                      : 'border-sky-400/80 bg-sky-400/15 shadow-sm'
-                    : 'border-zinc-800 bg-zinc-900/80'
-                )}
-              >
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[9px] font-bold uppercase text-zinc-400">
-                    {t('rightCourtLabel')}
-                  </span>
-                  {rightCourtPlayer === activeServerName && isServing && (
-                    <span className="text-[9px] font-bold text-[#6bc33a]">🏸 {t('service')}</span>
-                  )}
-                  {rightCourtPlayer === activeReceiverName && isReceiving && (
-                    <span className="text-[9px] font-bold text-sky-400">🛡️ {t('receiving')}</span>
-                  )}
-                </div>
-                <div className="font-bold text-xs sm:text-sm text-zinc-100 truncate">
-                  {rightCourtPlayer || playerName}
-                </div>
-              </div>
-
-              {/* Left Court */}
-              <div
-                className={cn(
-                  'rounded-lg border p-1.5 transition-all',
-                  activeRallyCourt === 'left'
-                    ? isServing
-                      ? 'border-[#6bc33a]/80 bg-[#6bc33a]/15 shadow-sm'
-                      : 'border-sky-400/80 bg-sky-400/15 shadow-sm'
-                    : 'border-zinc-800 bg-zinc-900/80'
-                )}
-              >
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[9px] font-bold uppercase text-zinc-400">
-                    {t('leftCourtLabel')}
-                  </span>
-                  {leftCourtPlayer === activeServerName && isServing && (
-                    <span className="text-[9px] font-bold text-[#6bc33a]">🏸 {t('service')}</span>
-                  )}
-                  {leftCourtPlayer === activeReceiverName && isReceiving && (
-                    <span className="text-[9px] font-bold text-sky-400">🛡️ {t('receiving')}</span>
-                  )}
-                </div>
-                <div className="font-bold text-xs sm:text-sm text-zinc-100 truncate">
-                  {leftCourtPlayer || partnerName || t('partnerPlaceholder')}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      {/* 2. Players Display */}
+      <div className={cn("rounded-xl border border-zinc-850 bg-zinc-900/70 flex flex-col justify-center", isPortrait ? "my-1 px-3 py-2" : "my-2 px-3.5 py-2.5")}>
+        <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-black text-white truncate">
+          {playerName}
+          {partnerName && (
+            <span className="text-zinc-300 font-bold"> / {partnerName}</span>
+          )}
+        </div>
       </div>
 
       {/* 3. Massive High-Visibility Score Display (Click to add point) */}
