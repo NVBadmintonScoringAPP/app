@@ -50,7 +50,7 @@ export function WelcomeSplash({
     <Dialog
       open={open}
       onClose={() => {}}
-      className="w-[94vw] sm:w-[90vw] md:w-[490px] max-w-[500px] border-zinc-800 bg-black/95 backdrop-blur-2xl !p-3 sm:!p-3.5 !overflow-hidden !overflow-x-hidden !overflow-y-hidden max-h-[96vh] flex flex-col justify-center shadow-2xl"
+      className="w-[94vw] sm:w-[90vw] md:w-[490px] max-w-[500px] border-zinc-800 bg-black/95 backdrop-blur-2xl !p-3 sm:!p-3.5 overflow-y-auto overflow-x-hidden max-h-[94vh] flex flex-col justify-start shadow-2xl"
     >
       <div className="w-full flex flex-col items-center text-center space-y-1.5 sm:space-y-2 select-none relative overflow-x-hidden">
         {/* Top Header Row: System Status (Left) and Language Switcher (Right) - Exactly aligned */}

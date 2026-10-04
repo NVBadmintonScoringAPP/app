@@ -136,13 +136,13 @@ export function Header({
       </div>
 
       {/* Right: Quick Kiosk Actions & Status */}
-      <div className="flex items-center gap-1.5 sm:gap-2">
-        {/* Language Switcher (Visible only if enabled by Admin) */}
+      <div className="flex items-center gap-1 sm:gap-2">
+        {/* Language Switcher (Visible on tablets/desktop if enabled by Admin) */}
         {isTranslationEnabled && (
           <button
             type="button"
             onClick={() => setLanguage(lang === 'bg' ? 'en' : 'bg')}
-            className="flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border border-emerald-500/50 bg-black px-2 sm:px-2.5 text-xs font-black text-white hover:border-emerald-400 hover:bg-emerald-950/40 transition-all shadow-md active:scale-95"
+            className="hidden sm:flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border border-emerald-500/50 bg-black px-2 sm:px-2.5 text-xs font-black text-white hover:border-emerald-400 hover:bg-emerald-950/40 transition-all shadow-md active:scale-95"
             title={lang === 'bg' ? 'Switch interface to English' : 'Превключи интерфейса на Български'}
           >
             <Globe size={14} className="text-emerald-400 shrink-0" />
@@ -155,17 +155,17 @@ export function Header({
         {/* Online / Sync indicator */}
         <div
           className={cn(
-            'flex h-8 sm:h-9 items-center gap-1 rounded-xl border px-2 sm:px-2.5 text-xs font-bold',
+            'flex h-7 sm:h-8 md:h-9 items-center gap-1 rounded-xl border px-1.5 sm:px-2.5 text-[11px] sm:text-xs font-bold',
             isOnline
               ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
               : 'border-red-500/40 bg-red-500/10 text-red-400'
           )}
           title={isOnline ? `${t('online')} (Cloud Sync)` : `${t('offline')} (IndexedDB)`}
         >
-          {isOnline ? <Wifi size={14} /> : <WifiOff size={14} />}
+          {isOnline ? <Wifi size={13} /> : <WifiOff size={13} />}
           <span className="hidden md:inline">{isOnline ? t('online') : t('offline')}</span>
           {pendingCount > 0 && (
-            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-black text-slate-950">
+            <span className="flex h-3.5 min-w-3.5 sm:h-4 sm:min-w-4 items-center justify-center rounded-full bg-amber-500 px-0.5 sm:px-1 text-[8px] sm:text-[9px] font-black text-slate-950">
               {pendingCount}
             </span>
           )}
@@ -175,71 +175,71 @@ export function Header({
         <button
           type="button"
           onClick={toggleFullscreen}
-          className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-sky-400 hover:border-sky-500/40 transition-colors"
+          className="hidden sm:flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-sky-400 hover:border-sky-500/40 transition-colors"
           title={isFullscreen ? t('fullscreenExit') : t('fullscreenEnter')}
         >
-          {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+          {isFullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
         </button>
 
         {/* Mute button */}
         <button
           type="button"
           onClick={onToggleMute}
-          className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-amber-400 hover:border-amber-500/40 transition-colors"
+          className="flex h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-amber-400 hover:border-amber-500/40 transition-colors"
           title={isMuted ? t('soundUnmute') : t('soundMute')}
         >
-          {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
         </button>
 
-        {/* WakeLock (Screen Always On) toggle */}
+        {/* WakeLock (Screen Always On) toggle - tablets/desktop */}
         {onToggleWakeLock && (
           <button
             type="button"
             onClick={onToggleWakeLock}
             className={cn(
-              'flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2 sm:px-2.5 text-xs font-bold transition-all',
+              'hidden md:flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2 sm:px-2.5 text-xs font-bold transition-all',
               wakeLockActive
                 ? 'border-amber-500/40 bg-amber-500/10 text-amber-300 shadow-sm shadow-amber-500/10'
                 : 'border-slate-800 bg-slate-900 text-slate-500 hover:text-slate-300'
             )}
             title={wakeLockActive ? t('wakeLockActiveTitle') : t('wakeLockInactiveTitle')}
           >
-            {wakeLockActive ? <Sun size={15} className="animate-spin-slow text-amber-400" /> : <SunDim size={15} />}
+            {wakeLockActive ? <Sun size={14} className="animate-spin-slow text-amber-400" /> : <SunDim size={14} />}
             <span className="hidden xl:inline">{wakeLockActive ? t('wakeLockActive') : t('wakeLockNormal')}</span>
           </button>
         )}
 
-        {/* PWA Install Button (shown when browser emits beforeinstallprompt) */}
+        {/* PWA Install Button (desktop/tablets) */}
         {canInstallPwa && onInstallPwa && (
           <button
             type="button"
             onClick={onInstallPwa}
-            className="flex h-8 sm:h-9 items-center gap-1 rounded-xl border border-sky-500/40 bg-sky-500/10 px-2 sm:px-2.5 text-xs font-bold text-sky-300 hover:bg-sky-500/20 transition-all animate-pulse"
+            className="hidden lg:flex h-8 sm:h-9 items-center gap-1 rounded-xl border border-sky-500/40 bg-sky-500/10 px-2 sm:px-2.5 text-xs font-bold text-sky-300 hover:bg-sky-500/20 transition-all animate-pulse"
             title={t('installPwaTitle')}
           >
             <Download size={14} />
-            <span className="hidden lg:inline">{t('installPwa')}</span>
+            <span className="hidden xl:inline">{t('installPwa')}</span>
           </button>
         )}
 
-        {/* Lock Screen */}
+        {/* Lock Screen Button */}
         <button
           type="button"
           onClick={onLockKiosk}
-          className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors"
+          className="flex h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 items-center justify-center rounded-xl border border-amber-500/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 transition-colors shadow-sm"
           title={t('lockKioskTitle')}
         >
-          <Lock size={15} />
+          <Lock size={14} />
         </button>
 
         {/* Admin PIN Settings */}
         <button
           type="button"
           onClick={onAdminPress}
-          className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors"
+          className="flex h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors"
           title={t('adminSettingsTitle')}
         >
-          <Shield size={16} />
+          <Shield size={14} />
         </button>
       </div>
     </header>

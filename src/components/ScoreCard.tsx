@@ -20,6 +20,7 @@ interface ScoreCardProps {
   leftCourtPlayer?: string;
   gameType: GameType;
   colorTheme: 'green' | 'red' | 'blue';
+  isPortrait?: boolean;
   onScore: () => void;
   onSwapTeamCourts?: () => void;
 }
@@ -40,6 +41,7 @@ export function ScoreCard({
   leftCourtPlayer,
   gameType,
   colorTheme,
+  isPortrait = false,
   onScore,
   onSwapTeamCourts,
 }: ScoreCardProps) {
@@ -74,19 +76,20 @@ export function ScoreCard({
   return (
     <div
       className={cn(
-        'relative flex flex-1 flex-col justify-between rounded-2xl border-2 p-3 sm:p-4 md:p-6 transition-all select-none',
+        'relative flex flex-1 flex-col justify-between rounded-2xl border-2 transition-all select-none',
+        isPortrait ? 'p-2 sm:p-3.5 md:p-6' : 'p-3 sm:p-4 md:p-6',
         themeStyles.border,
         isServing && themeStyles.active
       )}
     >
       {/* Top Header: Team label & Status Badge */}
-      <div className="flex items-center justify-between gap-2 border-b border-zinc-800/80 pb-3">
-        <div className="flex items-center gap-2 flex-wrap">
+      <div className={cn("flex items-center justify-between gap-2 border-b border-zinc-800/80", isPortrait ? "pb-1.5" : "pb-3")}>
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
           <span className={cn('text-xs font-black uppercase tracking-widest', themeStyles.accentText)}>
             {teamLabel}
           </span>
           {clubName && (
-            <span className="text-[11px] font-black uppercase px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-700 text-amber-300 shadow-sm">
+            <span className="text-[10px] sm:text-[11px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-700 text-amber-300 shadow-sm truncate max-w-[150px] sm:max-w-none">
               🏛️ {clubName}
             </span>
           )}
@@ -96,19 +99,19 @@ export function ScoreCard({
         </div>
 
         {/* Serving / Receiving Badges */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {isServing && (
             <span
               className={cn(
-                'flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wider animate-pulse shadow-md',
+                'flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider animate-pulse shadow-md',
                 themeStyles.badge
               )}
             >
-              <span className="text-sm">🏸</span> {t('service')}
+              <span className="text-xs sm:text-sm">🏸</span> {t('service')}
             </span>
           )}
           {isReceiving && (
-            <span className="flex items-center gap-1 rounded-full bg-zinc-900 border border-zinc-700 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-zinc-300">
+            <span className="flex items-center gap-1 rounded-full bg-zinc-900 border border-zinc-700 px-2 py-0.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-zinc-300">
               🛡️ {t('receiving')}
             </span>
           )}
@@ -116,7 +119,7 @@ export function ScoreCard({
       </div>
 
       {/* Players Court Positions Zone (BWF Court representation) */}
-      <div className="my-2 rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-2.5 sm:p-3">
+      <div className={cn("rounded-xl border border-zinc-800/80 bg-zinc-950/60", isPortrait ? "my-1 p-1.5 sm:p-2" : "my-2 p-2.5 sm:p-3")}>
         {gameType === 'singles' ? (
           <div className="flex items-center justify-between">
             <div>
@@ -228,7 +231,10 @@ export function ScoreCard({
 
       {/* Main Massive Score Display */}
       <div
-        className="my-3 flex flex-1 flex-col items-center justify-center cursor-pointer rounded-2xl bg-black/40 hover:bg-black/60 active:scale-[0.99] transition-all p-3"
+        className={cn(
+          "flex flex-1 flex-col items-center justify-center cursor-pointer rounded-2xl bg-black/40 hover:bg-black/60 active:scale-[0.99] transition-all",
+          isPortrait ? "my-1 p-1 sm:p-2 min-h-0" : "my-3 p-3"
+        )}
         onPointerDown={() => {
           touchActive.current = true;
         }}
@@ -243,10 +249,15 @@ export function ScoreCard({
           touchActive.current = false;
         }}
       >
-        <span className="tabular font-black leading-none text-zinc-50 text-7xl sm:text-8xl md:text-9xl tracking-tight drop-shadow-md">
+        <span
+          className={cn(
+            "tabular font-black leading-none text-zinc-50 tracking-tight drop-shadow-md",
+            isPortrait ? "text-6xl sm:text-7xl md:text-9xl" : "text-7xl sm:text-8xl md:text-9xl"
+          )}
+        >
           {score}
         </span>
-        <span className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
+        <span className={cn("font-bold uppercase tracking-widest text-zinc-500", isPortrait ? "mt-0.5 text-[10px]" : "mt-2 text-xs")}>
           {t('points')}
         </span>
       </div>
@@ -256,7 +267,8 @@ export function ScoreCard({
         type="button"
         onClick={onScore}
         className={cn(
-          'flex w-full items-center justify-center rounded-xl py-3.5 sm:py-4 text-base sm:text-lg font-black text-white transition-all shadow-lg active:scale-[0.98]',
+          'flex w-full items-center justify-center rounded-xl font-black text-white transition-all shadow-lg active:scale-[0.98]',
+          isPortrait ? 'py-2.5 sm:py-3.5 text-sm sm:text-base' : 'py-3.5 sm:py-4 text-base sm:text-lg',
           themeStyles.button
         )}
       >

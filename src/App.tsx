@@ -42,11 +42,33 @@ import type {
   TossResult,
   CustomFormatConfig,
 } from '@/types';
+import { cn } from '@/lib/utils';
 import { generateUUID, toUUID } from '@/lib/uuid';
 
 const DEFAULT_PIN = '1234';
 const INTERVAL_DURATION = 60;
 const SET_BREAK_DURATION = 120;
+
+function useIsPortrait(): boolean {
+  const [isPortrait, setIsPortrait] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerHeight > window.innerWidth;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPortrait(window.innerHeight > window.innerWidth);
+    };
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
+
+  return isPortrait;
+}
 
 export default function App() {
   const { t } = useI18n();
@@ -92,6 +114,8 @@ export default function App() {
     rightRightCourt: 'Player 2',
     rightLeftCourt: '',
   });
+
+  const isPortrait = useIsPortrait();
 
   // Kiosk Lock state & Persistent Admin PIN
   const [isKioskLocked, setIsKioskLocked] = useState(false);
@@ -159,6 +183,46 @@ export default function App() {
   const [showCards, setShowCards] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showSyncQueue, setShowSyncQueue] = useState(false);
+
+  // Kiosk guard: once the user has passed the welcome screen the app cannot be left
+  // without the admin PIN (fullscreen, back-button trap, PIN lock when app is backgrounded).
+  const kioskGuardActive = !showWelcome;
+  useEffect(() => {
+    if (!kioskGuardActive) return;
+
+    const enterFullscreen = () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    };
+    enterFullscreen();
+    window.addEventListener('pointerdown', enterFullscreen);
+
+    window.history.pushState(null, '', window.location.href);
+    const onPopState = () => {
+      window.history.pushState(null, '', window.location.href);
+    };
+    window.addEventListener('popstate', onPopState);
+
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+
+    // If the app goes to background (user switched apps), require PIN on return
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') setIsKioskLocked(true);
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      window.removeEventListener('pointerdown', enterFullscreen);
+      window.removeEventListener('popstate', onPopState);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [kioskGuardActive]);
 
   const [winner, setWinner] = useState<ServingSide | null>(null);
   const [matchOver, setMatchOver] = useState(false);
@@ -893,8 +957,13 @@ export default function App() {
         const activeRallyCourt = getServiceCourtByScore(serverScore);
 
         return (
-          <div className="flex flex-1 gap-2 p-2 md:gap-4 md:p-4 min-h-0 bg-black">
-            {/* Team Left ScoreCard */}
+          <div
+            className={cn(
+              'flex flex-1 gap-1.5 sm:gap-2 p-1.5 sm:p-2 md:gap-4 md:p-4 min-h-0 bg-black overflow-hidden',
+              isPortrait ? 'flex-col' : 'flex-row'
+            )}
+          >
+            {/* Team Left / Top ScoreCard */}
             <ScoreCard
               side="left"
               teamLabel={t('teamA')}
@@ -911,16 +980,23 @@ export default function App() {
               leftCourtPlayer={positions.leftLeftCourt}
               gameType={gameType}
               colorTheme="green"
+              isPortrait={isPortrait}
               onScore={() => handleAddPoint('left')}
               onSwapTeamCourts={gameType === 'doubles' ? () => handleSwapTeamCourts('left') : undefined}
             />
 
             {/* Center Net Divider with Bulgarian National Colors (Top White, Middle Green #6bc33a, Bottom Red #e11e24) */}
-            <div className="flex flex-col items-center justify-center relative px-1">
-              <div className="h-full w-1.5 rounded-full bg-gradient-to-b from-white via-[#6bc33a] to-[#e11e24] shadow-md shadow-emerald-500/30" />
-            </div>
+            {isPortrait ? (
+              <div className="flex w-full items-center justify-center py-0.5 shrink-0" title="Мрежа (разделител)">
+                <div className="w-full h-1 sm:h-1.5 rounded-full bg-gradient-to-r from-white via-[#6bc33a] to-[#e11e24] shadow-md shadow-emerald-500/30" />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center relative px-1 shrink-0" title="Мрежа (разделител)">
+                <div className="h-full w-1.5 rounded-full bg-gradient-to-b from-white via-[#6bc33a] to-[#e11e24] shadow-md shadow-emerald-500/30" />
+              </div>
+            )}
 
-            {/* Team Right ScoreCard */}
+            {/* Team Right / Bottom ScoreCard */}
             <ScoreCard
               side="right"
               teamLabel={t('teamB')}
@@ -937,6 +1013,7 @@ export default function App() {
               leftCourtPlayer={positions.rightLeftCourt}
               gameType={gameType}
               colorTheme="red"
+              isPortrait={isPortrait}
               onScore={() => handleAddPoint('right')}
               onSwapTeamCourts={gameType === 'doubles' ? () => handleSwapTeamCourts('right') : undefined}
             />

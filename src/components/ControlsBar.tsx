@@ -73,7 +73,7 @@ export function ControlsBar({
   ];
 
   return (
-    <div className="flex items-center justify-around gap-1.5 border-t border-zinc-800 bg-black px-2 py-2.5 sm:px-4 md:gap-3 select-none">
+    <div className="flex items-center justify-around gap-1 sm:gap-1.5 border-t border-zinc-800 bg-black px-1 sm:px-4 py-1.5 sm:py-2.5 md:gap-3 select-none">
       {buttons.map((btn) => (
         <button
           key={btn.label}
@@ -81,20 +81,20 @@ export function ControlsBar({
           onClick={btn.onClick}
           disabled={btn.disabled}
           className={cn(
-            'flex flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-zinc-800/80 bg-zinc-950/80 py-2 sm:py-2.5 px-1 sm:px-2 transition-all active:scale-95 shadow-sm',
+            'flex flex-1 flex-col items-center justify-center gap-0.5 sm:gap-1 rounded-xl sm:rounded-2xl border border-zinc-800/80 bg-zinc-950/80 py-1.5 sm:py-2.5 px-0.5 sm:px-2 transition-all active:scale-95 shadow-sm min-w-0',
             btn.bgColor,
             btn.disabled && 'opacity-30 cursor-not-allowed hover:bg-zinc-950/80 hover:border-zinc-800/80'
           )}
         >
           <div className="relative">
-            <btn.icon size={20} className={btn.color} />
+            <btn.icon size={17} className={cn(btn.color, 'sm:w-5 sm:h-5')} />
             {btn.badge && btn.badge > 0 ? (
-              <span className="absolute -right-2.5 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-black text-black shadow-md">
+              <span className="absolute -right-2.5 -top-2 flex h-3.5 min-w-3.5 sm:h-4 sm:min-w-4 items-center justify-center rounded-full bg-amber-500 px-0.5 sm:px-1 text-[8px] sm:text-[9px] font-black text-black shadow-md">
                 {btn.badge}
               </span>
             ) : null}
           </div>
-          <span className="text-[10px] sm:text-xs font-bold text-zinc-300 text-center truncate max-w-full">
+          <span className="text-[9px] sm:text-xs font-bold text-zinc-300 text-center truncate max-w-full">
             {btn.label}
           </span>
         </button>
