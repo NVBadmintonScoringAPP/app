@@ -50,9 +50,9 @@ export function WelcomeSplash({
     <Dialog
       open={open}
       onClose={() => {}}
-      className="w-[94vw] sm:w-[90vw] md:w-[490px] max-w-[500px] border-zinc-800 bg-black/95 backdrop-blur-2xl !p-3 sm:!p-3.5 overflow-y-auto overflow-x-hidden max-h-[94vh] flex flex-col justify-start shadow-2xl"
+      className="w-[94vw] sm:w-[90vw] md:w-[490px] max-w-[500px] border-zinc-800 bg-black/95 backdrop-blur-2xl !p-3 sm:!p-3.5 overflow-y-auto overflow-x-hidden max-h-[92vh] landscape:max-h-[88vh] flex flex-col justify-start shadow-2xl"
     >
-      <div className="w-full flex flex-col items-center text-center space-y-1.5 sm:space-y-2 select-none relative overflow-x-hidden">
+      <div className="w-full flex flex-col items-center text-center space-y-1.5 sm:space-y-2 landscape:space-y-1 select-none relative overflow-x-hidden">
         {/* Top Header Row: System Status (Left) and Language Switcher (Right) - Exactly aligned */}
         <div className="w-full flex items-center justify-between z-20">
           {/* Active System Readiness & Connectivity Status (Top-Left) */}
@@ -143,7 +143,7 @@ export function WelcomeSplash({
             <img
               src="/logo.png"
               alt="Национална Верига Бадминтон"
-              className="w-full max-h-[70px] sm:max-h-[82px] md:max-h-[90px] object-contain drop-shadow-2xl group-hover:scale-[1.01] transition-transform"
+              className="w-full max-h-[55px] sm:max-h-[70px] md:max-h-[90px] landscape:max-h-[45px] object-contain drop-shadow-2xl group-hover:scale-[1.01] transition-transform"
             />
           </div>
 

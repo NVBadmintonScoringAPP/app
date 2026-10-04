@@ -105,5 +105,9 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addVariant }) {
+      addVariant('landscape', '@media (orientation: landscape)');
+    },
+  ],
 };

@@ -25,11 +25,11 @@ export function Dialog({ open, onClose, children, className, title }: DialogProp
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center landscape:items-start landscape:overflow-y-auto landscape:py-2">
       <div className="absolute inset-0 bg-black/80 fade-in" onClick={onClose} />
       <div
         className={cn(
-          'relative z-10 w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-xl border border-border bg-card p-5 sm:p-6 shadow-2xl slide-up mx-3 sm:mx-4',
+          'relative z-10 w-full max-w-lg max-h-[92vh] landscape:max-h-none overflow-y-auto rounded-xl border border-border bg-card p-5 sm:p-6 shadow-2xl slide-up mx-3 sm:mx-4',
           className
         )}
       >
